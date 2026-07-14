@@ -1,0 +1,17 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import Vant from 'vant'
+import 'vant/lib/index.css'
+
+import App from './App.vue'
+import router from './router'
+import './utils/rem'  // 移动端 rem 适配
+import './styles/common.scss'  // 全局样式
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+app.use(Vant)
+
+app.mount('#app')

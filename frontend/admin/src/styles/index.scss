@@ -1,0 +1,164 @@
+/**
+ * @description 全局样式（参考 ModulithShop 设计）
+ */
+@import './variables.scss';
+
+// 滚动条样式 mixin
+@mixin base-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(144, 147, 153, 0.3);
+    border: 3px solid transparent;
+    border-radius: 7px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(144, 147, 153, 0.5);
+  }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'PingFang SC', Arial, 'Microsoft YaHei', sans-serif;
+  font-size: $base-font-size-default;
+  color: $base-color-text-regular;
+  background: $base-color-background;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  @include base-scrollbar;
+}
+
+#app {
+  height: 100vh;
+  overflow: auto;
+  @include base-scrollbar;
+}
+
+// 链接样式
+a {
+  color: $base-color-primary;
+  text-decoration: none;
+  transition: $base-transition;
+
+  &:hover {
+    color: lighten($base-color-primary, 10%);
+  }
+}
+
+// 图片样式
+img {
+  object-fit: cover;
+
+  &[src=''],
+  &:not([src]) {
+    opacity: 0;
+  }
+}
+
+// Element Plus 组件样式覆盖
+.el-button {
+  border-radius: $base-border-radius;
+  transition: $base-transition;
+}
+
+.el-tag {
+  border-radius: $base-border-radius;
+
+  & + .el-tag {
+    margin-left: 10px;
+  }
+}
+
+.el-card {
+  margin-bottom: $base-margin;
+  border-radius: $base-border-radius;
+  box-shadow: $base-box-shadow;
+
+  &__body {
+    padding: $base-padding;
+  }
+}
+
+.el-table {
+  th {
+    background: #f5f7fa !important;
+  }
+
+  td, th {
+    .cell {
+      font-size: $base-font-size-default;
+      color: $base-color-text-regular;
+    }
+  }
+
+  th .cell {
+    font-weight: bold;
+  }
+
+  .el-image {
+    width: 50px;
+    height: 50px;
+    border-radius: $base-border-radius;
+  }
+}
+
+.el-pagination {
+  justify-content: center;
+  margin-top: $base-margin;
+  font-weight: normal;
+}
+
+.el-form-item__label {
+  padding: 0 10px 0 0;
+  font-weight: 500;
+}
+
+.el-dialog {
+  border-radius: $base-border-radius;
+}
+
+.el-alert {
+  margin-bottom: $base-margin;
+  border-radius: $base-border-radius;
+}
+
+.el-divider--horizontal {
+  margin: 8px 0 calc($base-margin + 8px) 0;
+}
+
+// 数据为空占位图
+.data-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $base-color-text-secondary;
+}
+
+// 页面容器样式
+.page-container {
+  padding: $base-padding;
+  background: $base-color-white;
+  min-height: calc(100vh - #{$base-header-height} - #{$base-padding} * 2);
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .el-dialog,
+  .el-message-box {
+    width: auto !important;
+    margin: 5vw;
+  }
+
+  .el-button {
+    margin-bottom: 10px;
+  }
+}

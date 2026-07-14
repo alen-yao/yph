@@ -1,0 +1,211 @@
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: yph-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-yph2024!}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-yph}
+      MYSQL_USER: ${MYSQL_USER:-yph}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-yph123456}
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=1000
+      - --innodb_buffer_pool_size=1G
+    networks:
+      - yph-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-yph2024!}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: yph-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123456}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - yph-network
+
+  # Django 后端
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - PYTHON_VERSION=3.11
+    container_name: yph-backend
+    restart: always
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-in-production}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_NAME=${MYSQL_DATABASE:-yph}
+      - DATABASE_USER=${MYSQL_USER:-yph}
+      - DATABASE_PASSWORD=${MYSQL_PASSWORD:-yph123456}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis123456}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-redis123456}@redis:6379/1
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./backend/media:/app/media
+      - ./backend/static:/app/static
+      - ./backend/logs:/app/logs
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - yph-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Celery Worker (可选，用于异步任务)
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: yph-celery-worker
+    restart: always
+    command: celery -A yph worker -l info
+    environment:
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_NAME=${MYSQL_DATABASE:-yph}
+      - DATABASE_USER=${MYSQL_USER:-yph}
+      - DATABASE_PASSWORD=${MYSQL_PASSWORD:-yph123456}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis123456}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-redis123456}@redis:6379/1
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./backend/media:/app/media
+      - ./backend/logs:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - yph-network
+
+  # 管理后台前端
+  admin:
+    build:
+      context: ./frontend/admin
+      dockerfile: Dockerfile
+      args:
+        - NODE_VERSION=18
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: yph-admin
+    restart: always
+    ports:
+      - "${ADMIN_PORT:-3000}:80"
+    networks:
+      - yph-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # H5 前端
+  h5:
+    build:
+      context: ./frontend/h5
+      dockerfile: Dockerfile
+      args:
+        - NODE_VERSION=18
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: yph-h5
+    restart: always
+    ports:
+      - "${H5_PORT:-3001}:80"
+    networks:
+      - yph-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  pc:
+    build:
+      context: ./frontend/pc
+      dockerfile: Dockerfile
+      args:
+        - NODE_VERSION=18
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: yph-pc
+    restart: always
+    ports:
+      - "${PC_PORT:-8080}:80"
+    networks:
+      - yph-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      
+  # Nginx 反向代理（可选但推荐用于生产环境）
+  nginx:
+    image: nginx:alpine
+    container_name: yph-nginx
+    restart: always
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./backend/static:/usr/share/nginx/html/static:ro
+      - ./backend/media:/usr/share/nginx/html/media:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - admin
+      - h5
+    networks:
+      - yph-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  yph-network:
+    driver: bridge
