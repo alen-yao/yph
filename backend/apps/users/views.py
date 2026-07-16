@@ -39,16 +39,12 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields = ['id', 'created_time', 'user_points', 'user_money']
 
     def get_serializer_class(self):
-        if self.action == 'create':
-            return UserRegisterSerializer
-        elif self.action in ['retrieve', 'update', 'partial_update']:
+        if self.action in ['create', 'retrieve', 'update', 'partial_update']:
             return UserDetailSerializer
         return UserSerializer
 
     def get_permissions(self):
-        if self.action == 'create':
-            return [permissions.AllowAny()]
-        elif self.action in ['list', 'retrieve', 'update', 'partial_update', 'destroy']:
+        if self.action in ['list', 'create', 'retrieve', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAdminUser()]
         return [permissions.IsAuthenticated()]
 
