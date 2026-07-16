@@ -255,3 +255,27 @@ LOGGING = {
 
 # 创建日志目录
 os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)
+
+# 阿里云短信配置
+ALIYUN_SMS = {
+    'ACCESS_KEY_ID': os.environ.get('ALIYUN_SMS_ACCESS_KEY_ID', ''),
+    'ACCESS_KEY_SECRET': os.environ.get('ALIYUN_SMS_ACCESS_KEY_SECRET', ''),
+    'SIGN_NAME': os.environ.get('ALIYUN_SMS_SIGN_NAME', 'YPH电商'),
+    'TEMPLATE_CODE': {
+        'login': os.environ.get('ALIYUN_SMS_TEMPLATE_LOGIN', 'SMS_XXXXX'),
+        'register': os.environ.get('ALIYUN_SMS_TEMPLATE_REGISTER', 'SMS_XXXXX'),
+        'reset': os.environ.get('ALIYUN_SMS_TEMPLATE_RESET', 'SMS_XXXXX'),
+    }
+}
+
+# 微信配置
+WECHAT = {
+    'miniprogram': {
+        'APP_ID': os.environ.get('WECHAT_MINIPROGRAM_APP_ID', ''),
+        'APP_SECRET': os.environ.get('WECHAT_MINIPROGRAM_APP_SECRET', ''),
+    },
+    'h5': {
+        'APP_ID': os.environ.get('WECHAT_H5_APP_ID', ''),
+        'APP_SECRET': os.environ.get('WECHAT_H5_APP_SECRET', ''),
+    }
+}

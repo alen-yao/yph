@@ -23,6 +23,10 @@ class User(AbstractUser):
     gender = models.SmallIntegerField(choices=GENDER_CHOICES, default=0, verbose_name='性别')
     birthday = models.DateField(null=True, blank=True, verbose_name='生日')
 
+    # 第三方登录
+    wechat_openid = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name='微信OpenID')
+    wechat_unionid = models.CharField(max_length=100, null=True, blank=True, verbose_name='微信UnionID')
+
     # 会员相关
     user_level_id = models.IntegerField(default=1, verbose_name='会员等级ID')
     user_points = models.IntegerField(default=0, verbose_name='积分')
