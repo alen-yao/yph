@@ -61,6 +61,25 @@
           </el-col>
         </el-row>
 
+        <el-form-item label="用户角色" prop="role">
+          <el-select v-model="form.role" placeholder="请选择角色（可选）" clearable style="width: 100%">
+            <el-option
+              v-for="role in roles"
+              :key="role.id"
+              :label="role.name"
+              :value="role.id"
+            >
+              <div style="display: flex; justify-content: space-between">
+                <span>{{ role.name }}</span>
+                <span style="color: #999; font-size: 12px">{{ role.description }}</span>
+              </div>
+            </el-option>
+          </el-select>
+          <div style="font-size: 12px; color: #999; margin-top: 5px">
+            注：管理员(is_staff=true)无需设置角色，拥有所有权限
+          </div>
+        </el-form-item>
+
         <el-form-item label="状态" prop="is_active">
           <el-switch v-model="form.is_active" active-text="正常" inactive-text="禁用" />
         </el-form-item>
@@ -79,6 +98,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getUserDetail, createUser, updateUser } from '@/api/user'
+import { getRoleList } from '@/api/system'
 
 const router = useRouter()
 const route = useRoute()
@@ -86,6 +106,7 @@ const formRef = ref()
 const loading = ref(false)
 const isEdit = ref(false)
 const userId = ref(null)
+const roles = ref([])
 
 const form = reactive({
   username: '',
@@ -97,6 +118,7 @@ const form = reactive({
   birthday: null,
   user_points: 0,
   user_money: 0,
+  role: null,
   is_active: true
 })
 
@@ -149,7 +171,20 @@ const fetchUserDetail = async (id) => {
   }
 }
 
+const fetchRoles = async () => {
+  try {
+    const res = await getRoleList()
+    roles.value = res.results || res
+  } catch (error) {
+    console.error('获取角色列表失败', error)
+  }
+}
+
 onMounted(async () => {
+  // 获取角色列表
+  await fetchRoles()
+
+  // 如果是编辑模式，获取用户详情
   if (route.params.id) {
     isEdit.value = true
     userId.value = route.params.id

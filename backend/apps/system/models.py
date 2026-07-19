@@ -1,5 +1,39 @@
 """系统模块数据模型"""
 from django.db import models
+import json
+
+
+class UserRole(models.Model):
+    """
+    用户角色/类别
+    用于管理后台的权限控制
+    """
+    name = models.CharField(max_length=50, unique=True, verbose_name='角色名称')
+    description = models.CharField(max_length=200, blank=True, verbose_name='角色描述')
+    permissions = models.TextField(default='{}', verbose_name='权限配置(JSON)')
+    is_active = models.BooleanField(default=True, verbose_name='是否启用')
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+
+    class Meta:
+        db_table = 'user_role'
+        verbose_name = '用户角色'
+        verbose_name_plural = verbose_name
+        ordering = ['id']
+
+    def __str__(self):
+        return self.name
+
+    def get_permissions(self):
+        """获取权限配置"""
+        try:
+            return json.loads(self.permissions)
+        except:
+            return {}
+
+    def set_permissions(self, permissions_dict):
+        """设置权限配置"""
+        self.permissions = json.dumps(permissions_dict, ensure_ascii=False)
 
 
 class SystemConfig(models.Model):

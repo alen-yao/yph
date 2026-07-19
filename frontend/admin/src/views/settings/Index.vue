@@ -200,8 +200,182 @@
             </el-form-item>
           </el-form>
         </el-tab-pane>
+
+        <el-tab-pane label="产品分类" name="category">
+          <div style="margin-bottom: 20px">
+            <el-button type="primary" @click="handleAddCategory">添加分类</el-button>
+          </div>
+
+          <el-table :data="categories" border style="width: 100%">
+            <el-table-column prop="id" label="ID" width="80" />
+            <el-table-column prop="name" label="分类名称" width="200" />
+            <el-table-column prop="sort_order" label="排序" width="100" />
+            <el-table-column label="是否显示" width="100">
+              <template #default="{ row }">
+                <el-tag :type="row.is_show ? 'success' : 'danger'">
+                  {{ row.is_show ? '显示' : '隐藏' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="created_time" label="创建时间" width="180">
+              <template #default="{ row }">
+                {{ formatDateTime(row.created_time) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="200" fixed="right">
+              <template #default="{ row }">
+                <el-button type="primary" link @click="handleEditCategory(row)">编辑</el-button>
+                <el-button type="danger" link @click="handleDeleteCategory(row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+
+        <el-tab-pane label="用户角色" name="role">
+          <el-alert
+            title="角色权限管理"
+            type="info"
+            :closable="false"
+            style="margin-bottom: 20px"
+          >
+            配置不同角色的权限，管理员(is_staff=true)拥有所有权限，普通用户根据角色权限访问对应功能
+          </el-alert>
+
+          <div style="margin-bottom: 20px">
+            <el-button type="primary" @click="handleAddRole">添加角色</el-button>
+          </div>
+
+          <el-table :data="roles" border style="width: 100%">
+            <el-table-column prop="id" label="ID" width="80" />
+            <el-table-column prop="name" label="角色名称" width="150" />
+            <el-table-column prop="description" label="角色描述" min-width="200" />
+            <el-table-column label="权限模块" min-width="300">
+              <template #default="{ row }">
+                <el-tag
+                  v-for="perm in availablePermissions.filter(p => row.permissions_data?.[p.key])"
+                  :key="perm.key"
+                  size="small"
+                  style="margin-right: 5px; margin-bottom: 5px"
+                >
+                  {{ perm.label }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="用户数" width="100">
+              <template #default="{ row }">
+                <el-tag type="info">{{ row.user_count }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="状态" width="100">
+              <template #default="{ row }">
+                <el-tag :type="row.is_active ? 'success' : 'danger'">
+                  {{ row.is_active ? '启用' : '禁用' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="200" fixed="right">
+              <template #default="{ row }">
+                <el-button type="primary" link @click="handleEditRole(row)">编辑</el-button>
+                <el-button type="danger" link @click="handleDeleteRole(row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
+
+    <!-- 分类编辑对话框 -->
+    <el-dialog v-model="categoryDialogVisible" :title="categoryForm.id ? '编辑分类' : '添加分类'" width="600px">
+      <el-form ref="categoryFormRef" :model="categoryForm" :rules="categoryRules" label-width="120px">
+        <el-form-item label="分类名称" prop="name">
+          <el-input v-model="categoryForm.name" placeholder="请输入分类名称" />
+        </el-form-item>
+
+        <el-form-item label="父分类" prop="parent">
+          <el-select v-model="categoryForm.parent" placeholder="请选择父分类（可选）" clearable style="width: 100%">
+            <el-option
+              v-for="cat in parentCategories"
+              :key="cat.id"
+              :label="cat.name"
+              :value="cat.id"
+              :disabled="cat.id === categoryForm.id"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="排序" prop="sort_order">
+          <el-input-number v-model="categoryForm.sort_order" :min="0" />
+        </el-form-item>
+
+        <el-form-item label="是否显示" prop="is_show">
+          <el-switch v-model="categoryForm.is_show" />
+        </el-form-item>
+
+        <el-form-item label="分类图标" prop="icon">
+          <el-input v-model="categoryForm.icon" placeholder="请输入图标URL（可选）" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="categoryDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="categorySaving" @click="handleSaveCategory">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 角色编辑对话框 -->
+    <el-dialog v-model="roleDialogVisible" :title="roleForm.id ? '编辑角色' : '添加角色'" width="700px">
+      <el-form ref="roleFormRef" :model="roleForm" :rules="roleRules" label-width="120px">
+        <el-form-item label="角色名称" prop="name">
+          <el-input v-model="roleForm.name" placeholder="请输入角色名称" />
+        </el-form-item>
+
+        <el-form-item label="角色描述" prop="description">
+          <el-input
+            v-model="roleForm.description"
+            type="textarea"
+            :rows="2"
+            placeholder="请输入角色描述"
+          />
+        </el-form-item>
+
+        <el-form-item label="是否启用" prop="is_active">
+          <el-switch v-model="roleForm.is_active" />
+        </el-form-item>
+
+        <el-form-item label="权限配置">
+          <el-card shadow="never" style="width: 100%">
+            <template #header>
+              <div style="display: flex; justify-content: space-between; align-items: center">
+                <span>选择可访问的功能模块</span>
+                <div>
+                  <el-button size="small" @click="selectAllPermissions">全选</el-button>
+                  <el-button size="small" @click="clearAllPermissions">清空</el-button>
+                </div>
+              </div>
+            </template>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px">
+              <el-checkbox
+                v-for="perm in availablePermissions"
+                :key="perm.key"
+                v-model="roleForm.permissions[perm.key]"
+                :label="perm.label"
+                size="large"
+              >
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <el-icon><component :is="perm.icon" /></el-icon>
+                  <span>{{ perm.label }}</span>
+                </div>
+              </el-checkbox>
+            </div>
+          </el-card>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="roleDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="roleSaving" @click="handleSaveRole">保存</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 图片预览对话框 -->
     <el-dialog v-model="imagePreviewVisible" title="图片预览" width="500px">
@@ -213,12 +387,64 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getCategoryList, createCategory, updateCategory, deleteCategory } from '@/api/product'
+import { getRoleList, createRole, updateRole, deleteRole } from '@/api/system'
 
 const activeTab = ref('basic')
 const imagePreviewVisible = ref(false)
 const previewImageUrl = ref('')
+
+// 产品分类管理
+const categories = ref([])
+const categoryDialogVisible = ref(false)
+const categorySaving = ref(false)
+const categoryFormRef = ref()
+const categoryForm = reactive({
+  id: null,
+  name: '',
+  parent: null,
+  sort_order: 0,
+  is_show: true,
+  icon: ''
+})
+
+const categoryRules = {
+  name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }]
+}
+
+// 父分类选项（排除当前分类）
+const parentCategories = computed(() => {
+  return categories.value.filter(cat => cat.id !== categoryForm.id)
+})
+
+// 用户角色管理
+const roles = ref([])
+const roleDialogVisible = ref(false)
+const roleSaving = ref(false)
+const roleFormRef = ref()
+const roleForm = reactive({
+  id: null,
+  name: '',
+  description: '',
+  permissions: {},
+  is_active: true
+})
+
+const roleRules = {
+  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }]
+}
+
+// 可用的权限模块
+const availablePermissions = [
+  { key: 'dashboard', label: '仪表盘', icon: 'Odometer' },
+  { key: 'users', label: '用户管理', icon: 'User' },
+  { key: 'products', label: '商品管理', icon: 'Goods' },
+  { key: 'orders', label: '订单管理', icon: 'Document' },
+  { key: 'marketing', label: '营销管理', icon: 'TrendCharts' },
+  { key: 'settings', label: '系统设置', icon: 'Setting' }
+]
 
 // 基本设置
 const basicFormRef = ref()
@@ -307,6 +533,204 @@ const saveSmsSettings = () => {
 const resetSmsSettings = () => {
   ElMessage.info('已重置短信设置')
 }
+
+// 分类管理方法
+const fetchCategories = async () => {
+  try {
+    const res = await getCategoryList()
+    categories.value = res.results || res
+  } catch (error) {
+    ElMessage.error('获取分类列表失败')
+  }
+}
+
+const handleAddCategory = () => {
+  Object.assign(categoryForm, {
+    id: null,
+    name: '',
+    parent: null,
+    sort_order: 0,
+    is_show: true,
+    icon: ''
+  })
+  categoryDialogVisible.value = true
+}
+
+const handleEditCategory = (row) => {
+  Object.assign(categoryForm, {
+    id: row.id,
+    name: row.name,
+    parent: row.parent,
+    sort_order: row.sort_order,
+    is_show: row.is_show,
+    icon: row.icon || ''
+  })
+  categoryDialogVisible.value = true
+}
+
+const handleSaveCategory = async () => {
+  await categoryFormRef.value.validate()
+  categorySaving.value = true
+
+  try {
+    const data = {
+      name: categoryForm.name,
+      parent: categoryForm.parent || null,
+      sort_order: categoryForm.sort_order,
+      is_show: categoryForm.is_show,
+      icon: categoryForm.icon || null,
+      level: categoryForm.parent ? 2 : 1
+    }
+
+    if (categoryForm.id) {
+      await updateCategory(categoryForm.id, data)
+      ElMessage.success('更新成功')
+    } else {
+      await createCategory(data)
+      ElMessage.success('添加成功')
+    }
+
+    categoryDialogVisible.value = false
+    await fetchCategories()
+  } catch (error) {
+    ElMessage.error(error.response?.data?.error || error.message || '操作失败')
+  } finally {
+    categorySaving.value = false
+  }
+}
+
+const handleDeleteCategory = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除分类"${row.name}"吗？`,
+      '删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    await deleteCategory(row.id)
+    ElMessage.success('删除成功')
+    await fetchCategories()
+  } catch (error) {
+    if (error === 'cancel') {
+      return
+    }
+    ElMessage.error(error.response?.data?.error || error.message || '删除失败')
+  }
+}
+
+const formatDateTime = (dateTime) => {
+  if (!dateTime) return '-'
+  return new Date(dateTime).toLocaleString('zh-CN')
+}
+
+// 角色管理方法
+const fetchRoles = async () => {
+  try {
+    const res = await getRoleList()
+    roles.value = res.results || res
+  } catch (error) {
+    ElMessage.error('获取角色列表失败')
+  }
+}
+
+const handleAddRole = () => {
+  Object.assign(roleForm, {
+    id: null,
+    name: '',
+    description: '',
+    permissions: {},
+    is_active: true
+  })
+  // 默认全部勾选
+  availablePermissions.forEach(p => {
+    roleForm.permissions[p.key] = true
+  })
+  roleDialogVisible.value = true
+}
+
+const handleEditRole = (row) => {
+  Object.assign(roleForm, {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    permissions: row.permissions_data || {},
+    is_active: row.is_active
+  })
+  roleDialogVisible.value = true
+}
+
+const handleSaveRole = async () => {
+  await roleFormRef.value.validate()
+  roleSaving.value = true
+
+  try {
+    const data = {
+      name: roleForm.name,
+      description: roleForm.description,
+      permissions: roleForm.permissions,
+      is_active: roleForm.is_active
+    }
+
+    if (roleForm.id) {
+      await updateRole(roleForm.id, data)
+      ElMessage.success('更新成功')
+    } else {
+      await createRole(data)
+      ElMessage.success('添加成功')
+    }
+
+    roleDialogVisible.value = false
+    await fetchRoles()
+  } catch (error) {
+    ElMessage.error(error.response?.data?.error || error.message || '操作失败')
+  } finally {
+    roleSaving.value = false
+  }
+}
+
+const handleDeleteRole = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除角色"${row.name}"吗？`,
+      '删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    await deleteRole(row.id)
+    ElMessage.success('删除成功')
+    await fetchRoles()
+  } catch (error) {
+    if (error === 'cancel') {
+      return
+    }
+    ElMessage.error(error.response?.data?.error || error.message || '删除失败')
+  }
+}
+
+const selectAllPermissions = () => {
+  availablePermissions.forEach(p => {
+    roleForm.permissions[p.key] = true
+  })
+}
+
+const clearAllPermissions = () => {
+  availablePermissions.forEach(p => {
+    roleForm.permissions[p.key] = false
+  })
+}
+
+onMounted(() => {
+  fetchCategories()
+  fetchRoles()
+})
 </script>
 
 <style scoped>

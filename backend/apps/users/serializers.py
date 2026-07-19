@@ -48,6 +48,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['mobile'] = self.user.mobile
         data['nickname'] = self.user.nickname or self.user.username
         data['avatar'] = self.user.avatar.url if self.user.avatar else ''
+        data['is_staff'] = self.user.is_staff
+        data['is_superuser'] = self.user.is_superuser
+
+        # 添加角色信息
+        if self.user.role:
+            data['role'] = {
+                'id': self.user.role.id,
+                'name': self.user.role.name,
+                'description': self.user.role.description,
+                'permissions_data': self.user.role.get_permissions()
+            }
+        else:
+            data['role'] = None
+
         return data
 
 
@@ -126,6 +140,14 @@ class MultiLoginSerializer(serializers.Serializer):
             'mobile': user.mobile,
             'nickname': user.nickname or user.username,
             'avatar': user.avatar.url if user.avatar else '',
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
+            'role': {
+                'id': user.role.id,
+                'name': user.role.name,
+                'description': user.role.description,
+                'permissions_data': user.role.get_permissions()
+            } if user.role else None
         }
 
         return attrs
@@ -269,16 +291,30 @@ class UserSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     """用户详细信息序列化器"""
     password = serializers.CharField(write_only=True, required=False, min_length=6, max_length=20, allow_blank=True)
+    role_name = serializers.CharField(source='role.name', read_only=True)
+    role_data = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['id', 'username', 'mobile', 'nickname', 'avatar', 'gender',
                   'birthday', 'user_level_id', 'user_points', 'user_money',
-                  'user_invite_code', 'email', 'is_active', 'password', 'created_time']
+                  'user_invite_code', 'email', 'is_active', 'is_staff', 'is_superuser',
+                  'role', 'role_name', 'role_data', 'password', 'created_time']
         read_only_fields = ['id', 'user_invite_code', 'created_time']
         extra_kwargs = {
             'username': {'required': False}  # 编辑时不需要，新增时会自动设置
         }
+
+    def get_role_data(self, obj):
+        """获取角色详细信息"""
+        if obj.role:
+            return {
+                'id': obj.role.id,
+                'name': obj.role.name,
+                'description': obj.role.description,
+                'permissions_data': obj.role.get_permissions()
+            }
+        return None
 
     def validate(self, attrs):
         """验证数据"""

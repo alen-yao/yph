@@ -19,13 +19,13 @@ const router = createRouter({
           path: '/dashboard',
           name: 'Dashboard',
           component: () => import('@/views/Dashboard.vue'),
-          meta: { title: '数据概览', icon: 'DataLine' }
+          meta: { title: '数据概览', icon: 'DataLine', permission: 'dashboard' }
         },
         {
           path: '/products',
           name: 'Products',
           component: () => import('@/views/products/List.vue'),
-          meta: { title: '商品管理', icon: 'Goods' }
+          meta: { title: '商品管理', icon: 'Goods', permission: 'products' }
         },
         {
           path: '/products/create',
@@ -43,13 +43,13 @@ const router = createRouter({
           path: '/orders',
           name: 'Orders',
           component: () => import('@/views/orders/List.vue'),
-          meta: { title: '订单管理', icon: 'List' }
+          meta: { title: '订单管理', icon: 'List', permission: 'orders' }
         },
         {
           path: '/users',
           name: 'Users',
           component: () => import('@/views/users/List.vue'),
-          meta: { title: '用户管理', icon: 'User' }
+          meta: { title: '用户管理', icon: 'User', permission: 'users' }
         },
         {
           path: '/users/create',
@@ -67,7 +67,7 @@ const router = createRouter({
           path: '/marketing',
           name: 'Marketing',
           component: () => import('@/views/marketing/List.vue'),
-          meta: { title: '营销活动', icon: 'Present' }
+          meta: { title: '营销活动', icon: 'Present', permission: 'marketing' }
         },
         {
           path: '/marketing/activity/create',
@@ -97,7 +97,7 @@ const router = createRouter({
           path: '/settings',
           name: 'Settings',
           component: () => import('@/views/settings/Index.vue'),
-          meta: { title: '系统设置', icon: 'Setting' }
+          meta: { title: '系统设置', icon: 'Setting', permission: 'settings' }
         }
       ]
     }
@@ -108,13 +108,27 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
+  // 检查登录状态
   if (to.meta.requiresAuth !== false && !userStore.token) {
     next('/login')
-  } else if (to.path === '/login' && userStore.token) {
-    next('/')
-  } else {
-    next()
+    return
   }
+
+  // 已登录用户访问登录页，重定向到首页
+  if (to.path === '/login' && userStore.token) {
+    next('/')
+    return
+  }
+
+  // 检查权限
+  const permission = to.meta?.permission
+  if (permission && !userStore.hasPermission(permission)) {
+    // 没有权限，重定向到首页或显示403
+    next('/dashboard')
+    return
+  }
+
+  next()
 })
 
 export default router

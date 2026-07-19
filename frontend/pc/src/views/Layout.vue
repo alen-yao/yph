@@ -81,10 +81,24 @@
       <nav class="nav-bar">
         <div class="container">
           <div class="nav-content">
-            <div class="category-menu">
-              <el-icon><Grid /></el-icon>
-              全部商品分类
-            </div>
+            <el-dropdown class="category-menu" trigger="hover" @command="handleCategoryClick">
+              <div class="category-menu-trigger">
+                <el-icon><Grid /></el-icon>
+                全部商品分类
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu class="category-dropdown">
+                  <el-dropdown-item
+                    v-for="category in categories"
+                    :key="category.id"
+                    :command="category.id"
+                  >
+                    <el-icon v-if="category.icon"><Picture /></el-icon>
+                    {{ category.name }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
             <div class="nav-links">
               <router-link to="/" :class="{ active: $route.path === '/' }">首页</router-link>
               <router-link to="/products" :class="{ active: $route.path === '/products' }">全部商品</router-link>
@@ -165,9 +179,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getCategoryList } from '@/api/product'
 
 const router = useRouter()
 
@@ -175,6 +190,7 @@ const isLogin = ref(false)
 const username = ref('用户名')
 const cartCount = ref(0)
 const searchKeyword = ref('')
+const categories = ref([])
 
 const hotKeywords = ref(['手机', '笔记本', '耳机', '数码相机', '智能手表'])
 
@@ -195,6 +211,26 @@ const handleLogout = () => {
   ElMessage.success('退出成功')
   router.push('/')
 }
+
+const handleCategoryClick = (categoryId) => {
+  router.push({
+    path: '/products',
+    query: { category: categoryId }
+  })
+}
+
+const fetchCategories = async () => {
+  try {
+    const res = await getCategoryList({ is_show: true })
+    categories.value = res.results || res
+  } catch (error) {
+    console.error('获取分类失败', error)
+  }
+}
+
+onMounted(() => {
+  fetchCategories()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -344,19 +380,41 @@ const handleLogout = () => {
   }
 
   .category-menu {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 20px;
     height: 100%;
-    background: $theme-color-dark;
-    color: $text-color-white;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.3s;
 
-    &:hover {
-      background: darken($theme-color-dark, 5%);
+    .category-menu-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px;
+      height: 100%;
+      background: $theme-color-dark;
+      color: $text-color-white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      &:hover {
+        background: darken($theme-color-dark, 5%);
+      }
+    }
+  }
+
+  :deep(.category-dropdown) {
+    min-width: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+
+    .el-dropdown-menu__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+
+      &:hover {
+        background: $bg-color;
+        color: $theme-color;
+      }
     }
   }
 

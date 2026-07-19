@@ -1,5 +1,6 @@
 """商品模块视图"""
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, status
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import (Product, ProductCategory, ProductBrand,
                      ProductComment, ProductItem)
@@ -29,6 +30,28 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
         if not self.request.user.is_staff:
             queryset = queryset.filter(is_show=True)
         return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        """删除分类前检查是否有商品在使用"""
+        instance = self.get_object()
+
+        # 检查该分类下是否有商品
+        product_count = Product.objects.filter(category=instance).count()
+        if product_count > 0:
+            return Response(
+                {'error': f'该分类下有 {product_count} 个商品，无法删除'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 检查是否有子分类
+        children_count = ProductCategory.objects.filter(parent=instance).count()
+        if children_count > 0:
+            return Response(
+                {'error': f'该分类下有 {children_count} 个子分类，请先删除子分类'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return super().destroy(request, *args, **kwargs)
 
 
 class ProductBrandViewSet(viewsets.ModelViewSet):

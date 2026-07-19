@@ -36,6 +36,10 @@ class User(AbstractUser):
     user_parent_id = models.IntegerField(default=0, verbose_name='推荐人ID')
     user_invite_code = models.CharField(max_length=20, unique=True, null=True, blank=True, verbose_name='邀请码')
 
+    # 角色权限（仅用于管理后台）
+    role = models.ForeignKey('system.UserRole', null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name='users', verbose_name='角色')
+
     # 状态
     is_active = models.BooleanField(default=True, verbose_name='是否激活')
 

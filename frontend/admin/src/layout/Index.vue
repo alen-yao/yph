@@ -79,9 +79,18 @@ const isCollapse = ref(false)
 const currentRoute = computed(() => route.path)
 const userInfo = computed(() => userStore.userInfo)
 
-const menuRoutes = router.options.routes
-  .find(r => r.path === '/')
-  ?.children.filter(r => r.meta?.title && !r.meta?.hidden) || []
+// 基于权限过滤菜单
+const menuRoutes = computed(() => {
+  const allRoutes = router.options.routes
+    .find(r => r.path === '/')
+    ?.children.filter(r => r.meta?.title && !r.meta?.hidden) || []
+
+  // 根据用户权限过滤菜单
+  return allRoutes.filter(route => {
+    const permission = route.meta?.permission
+    return userStore.hasPermission(permission)
+  })
+})
 
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value

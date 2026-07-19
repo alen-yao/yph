@@ -1,44 +1,95 @@
 <template>
   <div class="category">
-    <van-search v-model="searchValue" placeholder="请输入搜索关键词" />
+    <van-search v-model="searchValue" placeholder="请输入搜索关键词" @search="handleSearch" />
 
     <div class="category-container">
       <van-sidebar v-model="activeKey">
-        <van-sidebar-item v-for="cat in categories" :key="cat.id" :title="cat.name" />
+        <van-sidebar-item v-for="(cat, index) in categories" :key="cat.id" :title="cat.name" />
       </van-sidebar>
 
       <div class="category-content">
-        <div class="subcategory-list">
-          <div v-for="sub in subcategories" :key="sub.id" class="subcategory-item">
-            <van-image :src="sub.icon || 'https://via.placeholder.com/80'" />
+        <div v-if="subcategories.length > 0" class="subcategory-list">
+          <div
+            v-for="sub in subcategories"
+            :key="sub.id"
+            class="subcategory-item"
+            @click="handleSubCategoryClick(sub.id)"
+          >
+            <van-image
+              v-if="sub.icon"
+              :src="sub.icon"
+              fit="cover"
+              width="60"
+              height="60"
+            />
+            <van-image
+              v-else
+              src="https://via.placeholder.com/60?text=No+Image"
+              fit="cover"
+              width="60"
+              height="60"
+            />
             <div>{{ sub.name }}</div>
           </div>
         </div>
+        <van-empty v-else description="暂无子分类" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { getCategoryList } from '@/api/product'
 
+const router = useRouter()
 const searchValue = ref('')
 const activeKey = ref(0)
+const allCategories = ref([])
 
-const categories = ref([
-  { id: 1, name: '数码电器' },
-  { id: 2, name: '服装服饰' },
-  { id: 3, name: '食品生鲜' },
-  { id: 4, name: '图书音像' },
-  { id: 5, name: '家居家装' }
-])
+// 一级分类（无父分类的）
+const categories = computed(() => {
+  return allCategories.value.filter(cat => !cat.parent && cat.is_show)
+})
 
-const subcategories = ref([
-  { id: 1, name: '手机', icon: '' },
-  { id: 2, name: '电脑', icon: '' },
-  { id: 3, name: '数码配件', icon: '' },
-  { id: 4, name: '智能设备', icon: '' }
-])
+// 当前选中分类的子分类
+const subcategories = computed(() => {
+  if (categories.value.length === 0) return []
+  const currentCategory = categories.value[activeKey.value]
+  if (!currentCategory) return []
+
+  return allCategories.value.filter(cat => cat.parent === currentCategory.id && cat.is_show)
+})
+
+const fetchCategories = async () => {
+  try {
+    const res = await getCategoryList({ is_show: true })
+    allCategories.value = res.results || res
+  } catch (error) {
+    console.error('获取分类失败', error)
+  }
+}
+
+const handleSearch = () => {
+  if (searchValue.value.trim()) {
+    router.push({
+      path: '/products',
+      query: { keyword: searchValue.value }
+    })
+  }
+}
+
+const handleSubCategoryClick = (categoryId) => {
+  router.push({
+    path: '/products',
+    query: { category: categoryId }
+  })
+}
+
+onMounted(() => {
+  fetchCategories()
+})
 </script>
 
 <style scoped>
@@ -78,5 +129,12 @@ const subcategories = ref([
   padding: 15px;
   border-radius: 8px;
   font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 </style>
