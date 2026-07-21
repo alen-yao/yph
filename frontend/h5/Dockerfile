@@ -24,7 +24,7 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 # 清除缓存并构建应用
 RUN rm -rf dist node_modules/.vite && \
-    npm run build -- --force
+    npm run build --force
 
 # 多阶段构建 - Stage 2: 生产镜像
 FROM nginx:alpine as production
