@@ -65,8 +65,8 @@ while ! nc -z \${DATABASE_HOST:-mysql} \${DATABASE_PORT:-3306}; do
 done
 echo "数据库已连接！"
 
-# echo "执行数据库迁移..."
-# python manage.py migrate --noinput --fake-initial
+echo "执行数据库迁移..."
+python manage.py migrate --noinput
 
 echo "收集静态文件..."
 python manage.py collectstatic --noinput

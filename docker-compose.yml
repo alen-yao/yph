@@ -68,9 +68,9 @@ services:
       - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-redis123456}@redis:6379/1
       - TZ=Asia/Shanghai
     volumes:
-      - ./backend/media:/app/media
-      - ./backend/static:/app/static
-      - ./backend/logs:/app/logs
+      - ./backend:/app  # 挂载整个后端代码目录，支持代码修改和迁移文件同步
+      - /app/__pycache__  # 排除 Python 缓存
+      - backend_static:/app/static  # 使用 volume 存储静态文件
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     depends_on:
@@ -105,8 +105,8 @@ services:
       - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-redis123456}@redis:6379/1
       - TZ=Asia/Shanghai
     volumes:
-      - ./backend/media:/app/media
-      - ./backend/logs:/app/logs
+      - ./backend:/app  # 挂载后端代码目录
+      - /app/__pycache__
     depends_on:
       mysql:
         condition: service_healthy
@@ -204,6 +204,8 @@ volumes:
   mysql_data:
     driver: local
   redis_data:
+    driver: local
+  backend_static:
     driver: local
 
 networks:
