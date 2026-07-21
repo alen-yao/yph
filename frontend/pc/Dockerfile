@@ -7,7 +7,9 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npm run build
+# 清除缓存并构建应用
+RUN rm -rf dist node_modules/.vite && \
+    npm run build -- --force
 
 # Production stage
 FROM nginx:alpine as production-stage
