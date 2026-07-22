@@ -1,12 +1,14 @@
 # 多阶段构建 - Stage 1: 基础镜像
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim as base
+FROM python:${PYTHON_VERSION}-slim AS base
 
 # 设置环境变量
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
+
+
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # 多阶段构建 - Stage 2: 依赖安装
-FROM base as dependencies
+FROM base AS dependencies
 
 # 复制依赖文件
 COPY requirements.txt .
@@ -30,7 +32,7 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # 多阶段构建 - Stage 3: 最终镜像
-FROM base as final
+FROM base AS final
 
 # 复制已安装的依赖
 COPY --from=dependencies /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
