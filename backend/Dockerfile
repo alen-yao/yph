@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     default-libmysqlclient-dev \
     pkg-config \
     curl \
-    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # 设置工作目录
@@ -25,7 +24,7 @@ FROM base as dependencies
 
 # 复制依赖文件
 COPY requirements.txt .
-COPY entrypoint.sh /app
+
 # 安装 Python 依赖
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
@@ -54,12 +53,9 @@ USER django
 # 暴露端口
 EXPOSE 8000
 
-# 确保 entrypoint.sh 有执行权限（已在 COPY . . 时复制）
-RUN chmod +x /app/entrypoint.sh
-
 # 健康检查端点（需要在 Django 中添加）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8000/api/health/ || exit 1
 
 # 启动命令
-ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["gunicorn", "yph.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]

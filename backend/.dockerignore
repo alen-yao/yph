@@ -23,4 +23,7 @@ env
 *.md
 start.sh
 start.bat
+entrypoint.sh
 db.sqlite3
+media/
+logs/
