@@ -25,7 +25,7 @@ FROM base as dependencies
 
 # 复制依赖文件
 COPY requirements.txt .
-
+COPY entrypoint.sh /app
 # 安装 Python 依赖
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
