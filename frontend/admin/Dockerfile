@@ -6,7 +6,7 @@ FROM node:${NODE_VERSION}-alpine as builder
 WORKDIR /app
 
 # 设置国内镜像加速（可选）
-# RUN npm config set registry https://registry.npmmirror.com
+RUN npm config set registry https://registry.npmmirror.com
 
 # 复制 package 文件
 COPY package*.json ./
