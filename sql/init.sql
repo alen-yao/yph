@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `user_role` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL UNIQUE COMMENT '角色名称',
   `description` varchar(200) DEFAULT '' COMMENT '角色描述',
-  `permissions` text NOT NULL DEFAULT '{}' COMMENT '权限配置(JSON)',
+  `permissions` text COMMENT '权限配置(JSON)',
   `is_active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '是否启用',
   `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
