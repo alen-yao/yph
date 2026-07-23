@@ -58,10 +58,20 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
+    # HTML 文件强制不缓存
+    location ~* \.html$ {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+        add_header Pragma "no-cache";
+        add_header Expires "0";
+        etag off;
+        if_modified_since off;
+    }
+
     # SPA 路由支持
     location / {
         try_files \$uri \$uri/ /index.html;
-        add_header Cache-Control "no-cache";
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+        expires off;
     }
 
     # 健康检查
