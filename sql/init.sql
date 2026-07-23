@@ -17,6 +17,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 系统模块
 -- ============================================
 
+
 -- 用户角色表
 CREATE TABLE IF NOT EXISTS `user_role` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
