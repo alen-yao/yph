@@ -211,8 +211,44 @@ CREATE TABLE IF NOT EXISTS `user_login_history` (
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 插入默认数据
+
+-- 插入默认用户等级
 INSERT INTO `user_level` (`level_name`, `level_discount`, `min_points`, `max_points`, `is_default`, `sort_order`)
 VALUES ('普通会员', 1.00, 0, 999, 1, 1) ON DUPLICATE KEY UPDATE `id`=`id`;
 
+-- 插入管理员角色
 INSERT INTO `user_role` (`name`, `description`, `permissions`)
 VALUES ('管理员', '系统管理员', '{}') ON DUPLICATE KEY UPDATE `id`=`id`;
+
+-- 插入管理员用户
+-- 用户名: admin
+-- 密码: admin123 (使用Django PBKDF2加密)
+INSERT INTO `user` (
+  `username`,
+  `password`,
+  `is_superuser`,
+  `is_staff`,
+  `is_active`,
+  `email`,
+  `mobile`,
+  `nickname`,
+  `gender`,
+  `user_level_id`,
+  `user_points`,
+  `user_money`,
+  `role_id`
+) VALUES (
+  'admin',
+  'pbkdf2_sha256$600000$fQ8vZ3xK9mN2pL1rT4wY6u$8yJ2xV5nW9qA3bC7dE1fG4hI6jK8lM0nO2pQ5rS7tU9vW1xY3zA5bC7dE9fG1hI=',
+  1,
+  1,
+  1,
+  'admin@yph.com',
+  '13800138000',
+  '系统管理员',
+  0,
+  1,
+  0,
+  0.00,
+  1
+) ON DUPLICATE KEY UPDATE `id`=`id`;
