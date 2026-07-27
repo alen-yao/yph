@@ -279,3 +279,13 @@ WECHAT = {
         'APP_SECRET': os.environ.get('WECHAT_H5_APP_SECRET', ''),
     }
 }
+
+# MinIO 配置
+MINIO = {
+    'ENDPOINT': os.environ.get('MINIO_ENDPOINT', 'localhost:9000'),
+    'ACCESS_KEY': os.environ.get('MINIO_ACCESS_KEY', 'minioadmin'),
+    'SECRET_KEY': os.environ.get('MINIO_SECRET_KEY', 'minioadmin'),
+    'BUCKET_NAME': os.environ.get('MINIO_BUCKET_NAME', 'yph-products'),
+    'SECURE': os.environ.get('MINIO_SECURE', 'False') == 'True',  # 是否使用HTTPS
+    'PUBLIC_URL': os.environ.get('MINIO_PUBLIC_URL', 'http://localhost:9000'),  # 公开访问URL
+}

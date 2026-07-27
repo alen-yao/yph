@@ -14,3 +14,4 @@ markdown==3.6
 PyYAML==6.0.1
 requests==2.31.0
 gunicorn==21.2.0
+minio==7.2.7

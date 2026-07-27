@@ -48,3 +48,55 @@ class BannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banner
         fields = '__all__'
+
+
+class ImageUploadSerializer(serializers.Serializer):
+    """图片上传序列化器"""
+    file = serializers.ImageField(required=True, help_text='图片文件')
+    folder = serializers.CharField(
+        required=False,
+        default='products',
+        help_text='存储文件夹，如：products, banners, avatars'
+    )
+
+    def validate_file(self, value):
+        """验证文件"""
+        # 限制文件大小为10MB
+        if value.size > 10 * 1024 * 1024:
+            raise serializers.ValidationError('图片大小不能超过10MB')
+
+        # 验证文件类型
+        allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        if value.content_type not in allowed_types:
+            raise serializers.ValidationError('只支持 JPEG, PNG, GIF, WebP 格式的图片')
+
+        return value
+
+
+class MultipleImageUploadSerializer(serializers.Serializer):
+    """批量图片上传序列化器"""
+    files = serializers.ListField(
+        child=serializers.ImageField(),
+        required=True,
+        help_text='图片文件列表'
+    )
+    folder = serializers.CharField(
+        required=False,
+        default='products',
+        help_text='存储文件夹'
+    )
+
+    def validate_files(self, value):
+        """验证文件列表"""
+        if len(value) > 10:
+            raise serializers.ValidationError('一次最多上传10张图片')
+
+        for file in value:
+            if file.size > 10 * 1024 * 1024:
+                raise serializers.ValidationError(f'图片 {file.name} 大小超过10MB')
+
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+            if file.content_type not in allowed_types:
+                raise serializers.ValidationError(f'图片 {file.name} 格式不支持')
+
+        return value

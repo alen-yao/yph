@@ -34,3 +34,8 @@ export const updateUser = (id, data) => {
 export const deleteUser = (id) => {
   return request.delete(`/users/users/${id}/`)
 }
+
+// 修改密码
+export const changePassword = (data) => {
+  return request.post('/users/users/change-password/', data)
+}

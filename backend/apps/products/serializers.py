@@ -17,18 +17,25 @@ class ProductBrandSerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    """商品列表序列化器"""
     category_name = serializers.CharField(source='category.name', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
+    cover_image = serializers.ReadOnlyField(help_text='封面图（第一张主图）')
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category_name', 'brand_name', 'main_image',
-                  'price', 'market_price', 'sales_count', 'rating_average']
+        fields = ['id', 'name', 'category_name', 'brand_name', 'cover_image',
+                  'price', 'market_price', 'sales_count', 'rating_average',
+                  'is_recommend', 'is_new', 'is_hot', 'state']
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    """商品详情序列化器"""
     category_name = serializers.CharField(source='category.name', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
+    cover_image = serializers.ReadOnlyField(help_text='封面图（第一张主图）')
+    main_images_count = serializers.ReadOnlyField(help_text='主图数量')
+    detail_images_count = serializers.ReadOnlyField(help_text='详情图数量')
 
     class Meta:
         model = Product
@@ -37,12 +44,25 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     """商品创建和更新序列化器"""
+    main_images = serializers.ListField(
+        child=serializers.URLField(),
+        required=False,
+        allow_empty=True,
+        help_text='主图URL列表，第一张为封面图'
+    )
+    detail_images = serializers.ListField(
+        child=serializers.URLField(),
+        required=False,
+        allow_empty=True,
+        help_text='详情图URL列表'
+    )
 
     class Meta:
         model = Product
-        fields = ['name', 'category', 'brand', 'main_image', 'description',
-                  'price', 'market_price', 'cost_price', 'stock', 'state',
-                  'sort_order', 'is_recommend', 'is_new', 'is_hot']
+        fields = ['name', 'category', 'brand', 'main_images', 'detail_images',
+                  'description', 'detail_html', 'price', 'market_price',
+                  'cost_price', 'stock', 'state', 'sort_order',
+                  'is_recommend', 'is_new', 'is_hot']
 
     def validate_price(self, value):
         if value <= 0:
@@ -52,6 +72,16 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     def validate_stock(self, value):
         if value < 0:
             raise serializers.ValidationError('库存不能为负数')
+        return value
+
+    def validate_main_images(self, value):
+        if value and len(value) > 10:
+            raise serializers.ValidationError('主图最多10张')
+        return value
+
+    def validate_detail_images(self, value):
+        if value and len(value) > 20:
+            raise serializers.ValidationError('详情图最多20张')
         return value
 
 

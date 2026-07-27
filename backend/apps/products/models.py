@@ -70,13 +70,16 @@ class Product(models.Model):
     brand = models.ForeignKey(ProductBrand, null=True, blank=True, on_delete=models.SET_NULL,
                              related_name='products', verbose_name='品牌')
 
-    # 商品图片
-    main_image = models.ImageField(upload_to='products/main/', verbose_name='主图')
-    images = models.TextField(blank=True, verbose_name='商品图片列表(JSON)')
+    # 商品图片（存储MinIO的URL）
+    main_images = models.JSONField(default=list, verbose_name='主图列表',
+                                   help_text='商品主图URL列表，第一张为封面图，用于列表展示和详情页轮播')
+    detail_images = models.JSONField(default=list, verbose_name='详情图列表',
+                                     help_text='商品详情页图片URL列表，按顺序展示')
 
     # 商品详情
     description = models.TextField(blank=True, verbose_name='商品简介')
-    detail_html = models.TextField(blank=True, verbose_name='商品详情HTML')
+    detail_html = models.TextField(blank=True, verbose_name='商品详情HTML',
+                                   help_text='富文本编辑器内容，可选')
 
     # 价格和库存
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='销售价格')
@@ -110,6 +113,59 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def cover_image(self):
+        """获取封面图（第一张主图）"""
+        if self.main_images and len(self.main_images) > 0:
+            return self.main_images[0]
+        return None
+
+    @property
+    def main_images_count(self):
+        """获取主图数量"""
+        return len(self.main_images) if self.main_images else 0
+
+    @property
+    def detail_images_count(self):
+        """获取详情图数量"""
+        return len(self.detail_images) if self.detail_images else 0
+
+    def add_main_image(self, image_url):
+        """添加主图"""
+        if not self.main_images:
+            self.main_images = []
+        self.main_images.append(image_url)
+        self.save(update_fields=['main_images'])
+
+    def add_detail_image(self, image_url):
+        """添加详情图"""
+        if not self.detail_images:
+            self.detail_images = []
+        self.detail_images.append(image_url)
+        self.save(update_fields=['detail_images'])
+
+    def remove_main_image(self, image_url):
+        """删除主图"""
+        if self.main_images and image_url in self.main_images:
+            self.main_images.remove(image_url)
+            self.save(update_fields=['main_images'])
+
+    def remove_detail_image(self, image_url):
+        """删除详情图"""
+        if self.detail_images and image_url in self.detail_images:
+            self.detail_images.remove(image_url)
+            self.save(update_fields=['detail_images'])
+
+    def set_main_images(self, image_urls):
+        """批量设置主图（替换原有）"""
+        self.main_images = image_urls if isinstance(image_urls, list) else []
+        self.save(update_fields=['main_images'])
+
+    def set_detail_images(self, image_urls):
+        """批量设置详情图（替换原有）"""
+        self.detail_images = image_urls if isinstance(image_urls, list) else []
+        self.save(update_fields=['detail_images'])
 
 
 class ProductSpec(models.Model):
