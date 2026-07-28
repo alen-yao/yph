@@ -22,11 +22,13 @@
         <el-table-column label="商品图片" width="100" align="center">
           <template #default="{ row }">
             <el-image
-              :src="row.main_image"
+              v-if="row.cover_image"
+              :src="row.cover_image"
               fit="cover"
-              :preview-src-list="[row.main_image]"
+              :preview-src-list="row.main_images || [row.cover_image]"
               style="width: 60px; height: 60px; border-radius: 4px"
             />
+            <span v-else style="color: #999; font-size: 12px">暂无图片</span>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="商品名称" min-width="200" show-overflow-tooltip />

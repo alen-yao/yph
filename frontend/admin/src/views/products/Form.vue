@@ -30,13 +30,77 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="主图" prop="main_image">
-          <el-input v-model="form.main_image" placeholder="请输入图片URL">
-            <template #append>
-              <el-button @click="handleImagePreview">预览</el-button>
-            </template>
-          </el-input>
-          <div class="tip">示例：https://via.placeholder.com/300</div>
+        <el-form-item label="主图" prop="main_images">
+          <div class="image-upload-container">
+            <div class="image-list">
+              <draggable
+                v-model="form.main_images"
+                item-key="index"
+                class="image-draggable"
+                handle=".image-item"
+              >
+                <template #item="{ element, index }">
+                  <div class="image-item">
+                    <el-image
+                      :src="element"
+                      fit="cover"
+                      :preview-src-list="form.main_images"
+                      :initial-index="index"
+                    />
+                    <div class="image-overlay">
+                      <el-icon class="drag-handle"><Rank /></el-icon>
+                      <el-icon class="delete-icon" @click="handleRemoveMainImage(index)"><Delete /></el-icon>
+                    </div>
+                    <div v-if="index === 0" class="cover-badge">封面</div>
+                  </div>
+                </template>
+              </draggable>
+
+              <div v-if="form.main_images.length < 5" class="image-upload" @click="handleAddMainImage">
+                <el-icon><Plus /></el-icon>
+                <div class="upload-text">添加主图</div>
+              </div>
+            </div>
+            <div class="tip">
+              最多上传5张，第一张为封面图，拖动可调整顺序
+            </div>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="详情图" prop="detail_images">
+          <div class="image-upload-container">
+            <div class="image-list">
+              <draggable
+                v-model="form.detail_images"
+                item-key="index"
+                class="image-draggable"
+                handle=".image-item"
+              >
+                <template #item="{ element, index }">
+                  <div class="image-item">
+                    <el-image
+                      :src="element"
+                      fit="cover"
+                      :preview-src-list="form.detail_images"
+                      :initial-index="index"
+                    />
+                    <div class="image-overlay">
+                      <el-icon class="drag-handle"><Rank /></el-icon>
+                      <el-icon class="delete-icon" @click="handleRemoveDetailImage(index)"><Delete /></el-icon>
+                    </div>
+                  </div>
+                </template>
+              </draggable>
+
+              <div v-if="form.detail_images.length < 20" class="image-upload" @click="handleAddDetailImage">
+                <el-icon><Plus /></el-icon>
+                <div class="upload-text">添加详情图</div>
+              </div>
+            </div>
+            <div class="tip">
+              最多上传20张，拖动可调整顺序，详情页按顺序展示
+            </div>
+          </div>
         </el-form-item>
 
         <el-form-item label="商品描述" prop="description">
@@ -44,7 +108,7 @@
             v-model="form.description"
             type="textarea"
             :rows="4"
-            placeholder="请输入商品描述"
+            placeholder="请输入商品描述（可选）"
             maxlength="1000"
             show-word-limit
           />
@@ -102,11 +166,25 @@
       </el-form>
     </el-card>
 
-    <!-- 图片预览对话框 -->
-    <el-dialog v-model="imagePreviewVisible" title="图片预览" width="500px">
-      <div style="text-align: center">
-        <el-image :src="form.main_image" fit="contain" style="max-width: 100%; max-height: 400px" />
+    <!-- 图片URL输入对话框 -->
+    <el-dialog v-model="imageInputVisible" :title="currentImageType === 'main' ? '添加主图' : '添加详情图'" width="500px">
+      <el-input
+        v-model="imageUrl"
+        placeholder="请输入图片URL"
+        clearable
+      >
+        <template #prepend>URL</template>
+      </el-input>
+      <div class="tip" style="margin-top: 10px">
+        示例：https://via.placeholder.com/800x800
       </div>
+      <div v-if="imageUrl" style="margin-top: 20px; text-align: center">
+        <el-image :src="imageUrl" fit="contain" style="max-width: 100%; max-height: 300px" />
+      </div>
+      <template #footer>
+        <el-button @click="imageInputVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleConfirmAddImage" :disabled="!imageUrl">确定</el-button>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -115,6 +193,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Plus, Delete, Rank } from '@element-plus/icons-vue'
+import draggable from 'vuedraggable'
 import {
   getProductDetail,
   createProduct,
@@ -127,7 +207,9 @@ const router = useRouter()
 const route = useRoute()
 const formRef = ref()
 const loading = ref(false)
-const imagePreviewVisible = ref(false)
+const imageInputVisible = ref(false)
+const imageUrl = ref('')
+const currentImageType = ref('main') // 'main' or 'detail'
 const isEdit = ref(false)
 const productId = ref(null)
 
@@ -138,7 +220,8 @@ const form = reactive({
   name: '',
   category: null,
   brand: null,
-  main_image: '',
+  main_images: [],
+  detail_images: [],
   description: '',
   price: 0,
   market_price: 0,
@@ -155,7 +238,10 @@ const rules = {
   name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
   category: [{ required: true, message: '请选择分类', trigger: 'change' }],
   brand: [{ required: true, message: '请选择品牌', trigger: 'change' }],
-  main_image: [{ required: true, message: '请输入主图URL', trigger: 'blur' }],
+  main_images: [
+    { required: true, message: '请至少添加一张主图', trigger: 'change' },
+    { type: 'array', min: 1, message: '请至少添加一张主图', trigger: 'change' }
+  ],
   price: [{ required: true, message: '请输入售价', trigger: 'blur' }]
 }
 
@@ -163,12 +249,48 @@ const handleBack = () => {
   router.back()
 }
 
-const handleImagePreview = () => {
-  if (form.main_image) {
-    imagePreviewVisible.value = true
-  } else {
-    ElMessage.warning('请先输入图片URL')
+const handleAddMainImage = () => {
+  if (form.main_images.length >= 5) {
+    ElMessage.warning('主图最多5张')
+    return
   }
+  currentImageType.value = 'main'
+  imageUrl.value = ''
+  imageInputVisible.value = true
+}
+
+const handleAddDetailImage = () => {
+  if (form.detail_images.length >= 20) {
+    ElMessage.warning('详情图最多20张')
+    return
+  }
+  currentImageType.value = 'detail'
+  imageUrl.value = ''
+  imageInputVisible.value = true
+}
+
+const handleConfirmAddImage = () => {
+  if (!imageUrl.value) {
+    ElMessage.warning('请输入图片URL')
+    return
+  }
+
+  if (currentImageType.value === 'main') {
+    form.main_images.push(imageUrl.value)
+  } else {
+    form.detail_images.push(imageUrl.value)
+  }
+
+  imageInputVisible.value = false
+  imageUrl.value = ''
+}
+
+const handleRemoveMainImage = (index) => {
+  form.main_images.splice(index, 1)
+}
+
+const handleRemoveDetailImage = (index) => {
+  form.detail_images.splice(index, 1)
 }
 
 const handleSubmit = async () => {
@@ -176,11 +298,18 @@ const handleSubmit = async () => {
   loading.value = true
 
   try {
+    const submitData = {
+      ...form,
+      // 确保空数组也发送
+      main_images: form.main_images.length > 0 ? form.main_images : [],
+      detail_images: form.detail_images.length > 0 ? form.detail_images : []
+    }
+
     if (isEdit.value) {
-      await updateProduct(productId.value, form)
+      await updateProduct(productId.value, submitData)
       ElMessage.success('更新成功')
     } else {
-      await createProduct(form)
+      await createProduct(submitData)
       ElMessage.success('创建成功')
     }
     router.push('/products')
@@ -212,7 +341,23 @@ const fetchBrands = async () => {
 const fetchProductDetail = async (id) => {
   try {
     const res = await getProductDetail(id)
-    Object.assign(form, res)
+    // 确保图片字段是数组
+    form.main_images = Array.isArray(res.main_images) ? res.main_images : []
+    form.detail_images = Array.isArray(res.detail_images) ? res.detail_images : []
+    // 其他字段
+    form.name = res.name
+    form.category = res.category
+    form.brand = res.brand
+    form.description = res.description || ''
+    form.price = res.price
+    form.market_price = res.market_price
+    form.cost_price = res.cost_price
+    form.stock = res.stock
+    form.state = res.state
+    form.sort_order = res.sort_order
+    form.is_recommend = res.is_recommend
+    form.is_new = res.is_new
+    form.is_hot = res.is_hot
   } catch (error) {
     ElMessage.error('获取商品详情失败')
     router.back()
@@ -237,5 +382,105 @@ onMounted(async () => {
   font-size: 12px;
   color: #999;
   margin-top: 5px;
+}
+
+.image-upload-container {
+  width: 100%;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image-draggable {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: move;
+}
+
+.image-item :deep(.el-image) {
+  width: 100%;
+  height: 100%;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.image-item:hover .image-overlay {
+  opacity: 1;
+}
+
+.drag-handle,
+.delete-icon {
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.delete-icon:hover {
+  color: #f56c6c;
+}
+
+.cover-badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background: #409eff;
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.image-upload {
+  width: 120px;
+  height: 120px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.image-upload:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+
+.image-upload .el-icon {
+  font-size: 28px;
+  margin-bottom: 5px;
+}
+
+.upload-text {
+  font-size: 12px;
+  color: #999;
 }
 </style>

@@ -24,7 +24,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category_name', 'brand_name', 'cover_image',
+        fields = ['id', 'name', 'category_name', 'brand_name', 'cover_image', 'main_images',
                   'price', 'market_price', 'sales_count', 'rating_average',
                   'is_recommend', 'is_new', 'is_hot', 'state']
 
@@ -46,14 +46,15 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     """商品创建和更新序列化器"""
     main_images = serializers.ListField(
         child=serializers.URLField(),
-        required=False,
-        allow_empty=True,
+        required=True,
+        allow_empty=False,
         help_text='主图URL列表，第一张为封面图'
     )
     detail_images = serializers.ListField(
         child=serializers.URLField(),
         required=False,
         allow_empty=True,
+        default=list,
         help_text='详情图URL列表'
     )
 
@@ -75,14 +76,32 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_main_images(self, value):
-        if value and len(value) > 10:
-            raise serializers.ValidationError('主图最多10张')
+        if not value:
+            raise serializers.ValidationError('请至少添加一张主图')
+        if len(value) > 5:
+            raise serializers.ValidationError('主图最多5张')
         return value
 
     def validate_detail_images(self, value):
         if value and len(value) > 20:
             raise serializers.ValidationError('详情图最多20张')
-        return value
+        return value or []
+
+    def create(self, validated_data):
+        # 确保图片字段是列表类型
+        if 'main_images' not in validated_data:
+            validated_data['main_images'] = []
+        if 'detail_images' not in validated_data:
+            validated_data['detail_images'] = []
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # 确保图片字段是列表类型
+        if 'main_images' in validated_data and validated_data['main_images'] is None:
+            validated_data['main_images'] = []
+        if 'detail_images' in validated_data and validated_data['detail_images'] is None:
+            validated_data['detail_images'] = []
+        return super().update(instance, validated_data)
 
 
 class ProductItemSerializer(serializers.ModelSerializer):
