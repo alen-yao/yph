@@ -10,7 +10,7 @@
 
 例如：
 - `20260727_add_user_avatar.sql` - 添加用户头像字段
-- `20260727_modify_product_images.sql` - 修改产品图片字段
+- `20260801_modify_order_status.sql` - 修改订单状态字段
 
 ## 🚀 使用方法
 
@@ -23,10 +23,10 @@
 docker-compose exec mysql mysqldump -u yph -pyph123456 yph > backup_$(date +%Y%m%d).sql
 
 # 执行迁移
-docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/migrations/20260727_modify_product_images.sql
+docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/migrations/YYYYMMDD_your_migration.sql
 
 # 验证结果
-docker-compose exec mysql mysql -u yph -pyph123456 yph -e "DESC product;"
+docker-compose exec mysql mysql -u yph -pyph123456 yph -e "DESC your_table;"
 
 # 重启后端
 docker-compose restart backend
@@ -39,10 +39,10 @@ docker-compose restart backend
 mysqldump -u root -p yph > backup_$(date +%Y%m%d).sql
 
 # 执行迁移
-mysql -u root -p yph < sql/migrations/20260727_modify_product_images.sql
+mysql -u root -p yph < sql/migrations/YYYYMMDD_your_migration.sql
 
 # 验证结果
-mysql -u root -p yph -e "DESC product;"
+mysql -u root -p yph -e "DESC your_table;"
 ```
 
 ### 2. 创建新的迁移脚本
@@ -80,9 +80,34 @@ COMMIT;
 
 ## 📂 现有迁移文件
 
-| 文件 | 日期 | 说明 |
+暂无迁移文件。新项目请直接使用下方的初始化文件。
+
+## 📂 初始化文件
+
+本项目在 `sql/` 目录下提供了模块化的数据库初始化文件：
+
+| 文件 | 模块 | 说明 |
 |------|------|------|
-| `20260727_modify_product_images.sql` | 2026-07-27 | 产品表支持 MinIO 多图存储 |
+| `init.sql` | 用户+系统 | 用户表、系统配置等基础表 |
+| `init_products.sql` | 商品 | 商品、分类、品牌、SKU、评论等 |
+| `init_trade.sql` | 交易 | 购物车、订单、物流、退货等 |
+| `init_marketing.sql` | 营销 | 活动、优惠券等 |
+| `init_payment.sql` | 支付 | 支付订单、支付配置等 |
+| `init_shops.sql` | 店铺 | 收藏、浏览历史、搜索历史等 |
+| `init_complete.sql` | 完整 | 包含所有模块的完整初始化脚本 |
+
+**执行方式:**
+
+```bash
+# 方式1: 执行完整初始化（推荐）
+docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init_complete.sql
+
+# 方式2: 按模块分别执行
+docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init.sql
+docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init_products.sql
+docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init_trade.sql
+# ... 其他模块
+```
 
 ## ⚠️ 重要提示
 
