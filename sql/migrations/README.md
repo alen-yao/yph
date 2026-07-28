@@ -82,32 +82,27 @@ COMMIT;
 
 暂无迁移文件。新项目请直接使用下方的初始化文件。
 
-## 📂 初始化文件
+## 📂 数据库初始化
 
-本项目在 `sql/` 目录下提供了模块化的数据库初始化文件：
+项目使用 `sql/init_complete.sql` 进行完整数据库初始化，包含所有模块：
 
-| 文件 | 模块 | 说明 |
-|------|------|------|
-| `init.sql` | 用户+系统 | 用户表、系统配置等基础表 |
-| `init_products.sql` | 商品 | 商品、分类、品牌、SKU、评论等 |
-| `init_trade.sql` | 交易 | 购物车、订单、物流、退货等 |
-| `init_marketing.sql` | 营销 | 活动、优惠券等 |
-| `init_payment.sql` | 支付 | 支付订单、支付配置等 |
-| `init_shops.sql` | 店铺 | 收藏、浏览历史、搜索历史等 |
-| `init_complete.sql` | 完整 | 包含所有模块的完整初始化脚本 |
+- 系统模块（用户角色、轮播图、系统配置）
+- 用户模块（用户、地址、消息、积分、登录历史）
+- 商品模块（分类、品牌、商品、SKU、评论）
+- 交易模块（购物车、订单、物流、退货）
+- 营销模块（活动、优惠券）
+- 店铺模块（收藏、浏览、搜索历史）
 
 **执行方式:**
 
 ```bash
-# 方式1: 执行完整初始化（推荐）
+# 完整初始化
 docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init_complete.sql
-
-# 方式2: 按模块分别执行
-docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init.sql
-docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init_products.sql
-docker-compose exec -T mysql mysql -u yph -pyph123456 yph < sql/init_trade.sql
-# ... 其他模块
 ```
+
+**默认管理员账号:**
+- 用户名: `admin`
+- 密码: `admin123`
 
 ## ⚠️ 重要提示
 
