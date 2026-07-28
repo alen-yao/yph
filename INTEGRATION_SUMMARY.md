@@ -61,42 +61,52 @@
 
 ## 🚀 快速开始
 
-### 1. 启动 MinIO
+### Docker Compose 部署（推荐）
 
 ```bash
+# 1. 配置环境变量（可选，使用默认配置可跳过）
+cp .env.example .env
+
+# 2. 启动所有服务（包含 MinIO）
+docker-compose up -d
+
+# 3. 初始化数据库
+docker-compose exec backend python manage.py migrate
+
+# 4. 测试 MinIO 连接
+docker-compose exec backend python test_minio.py
+
+# 5. 创建示例数据
+docker-compose exec backend python scripts/migrate_product_images.py --sample
+```
+
+访问 MinIO 控制台: http://localhost:9001 (minioadmin/minioadmin)
+
+### 本地开发环境
+
+如果需要在本地开发环境单独启动 MinIO：
+
+```bash
+# 启动 MinIO
 docker run -d --name minio -p 9000:9000 -p 9001:9001 \
   -e "MINIO_ROOT_USER=minioadmin" \
   -e "MINIO_ROOT_PASSWORD=minioadmin" \
   minio/minio server /data --console-address ":9001"
-```
 
-访问控制台: http://localhost:9001 (minioadmin/minioadmin)
-
-### 2. 后端配置
-
-```bash
-cd backend
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 配置环境变量（.env）
+# 后端配置（.env）
 MINIO_ENDPOINT=localhost:9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
 MINIO_BUCKET_NAME=yph-products
 
-# 运行迁移
+# 安装依赖并测试
+cd backend
+pip install -r requirements.txt
 python manage.py migrate
-
-# 测试 MinIO 连接
 python test_minio.py
-
-# 创建示例数据
-python scripts/migrate_product_images.py --sample
 ```
 
-### 3. 前端使用
+### 前端示例
 
 参考示例组件:
 - 管理后台上传: [ProductImageUpload.vue](frontend/admin/src/examples/ProductImageUpload.vue)

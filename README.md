@@ -33,6 +33,7 @@ YPH 是一个基于 **Python Django + Vue3** 的现代化B2C电商系统，完�
 - **JWT** 认证 - 安全的Token认证
 - **MySQL 8.0** - 数据存储
 - **Redis 7** - 缓存和Session
+- **MinIO** - 对象存储（图片、文件管理） ✨ NEW
 - **Celery** - 异步任务处理
 - **Swagger** - 自动API文档
 - **Docker** - 容器化部署
@@ -104,6 +105,7 @@ docker-compose logs -f
 - **管理后台**: http://localhost:3000
 - **H5 商城**: http://localhost:3001
 - **PC 商城**: http://localhost:8080
+- **MinIO 控制台**: http://localhost:9001 ✨ NEW（默认账号: minioadmin/minioadmin）
 
 **首次启动等待约 30-60 秒，数据库会自动初始化。**
 
@@ -187,14 +189,21 @@ npm run dev  # http://localhost:8080
 - 每个端独立的 Token 管理
 - 设备信息记录和管理
 
-### 商品模块 (products)
+### 商品模块 (products) ✨ 已集成 MinIO 多图支持
 - ✅ 商品分类管理（支持多级分类）
 - ✅ 品牌管理
 - ✅ 商品基础信息
+- ✅ **商品多图管理**（主图最多10张，详情图最多20张）✨ NEW
+- ✅ **MinIO 对象存储**（图片存储在 MinIO，自动返回 URL）✨ NEW
 - ✅ 商品SKU管理
 - ✅ 商品规格管理
 - ✅ 商品评论系统
 - ✅ 商品标签
+
+**商品图片管理:**
+- 主图列表: 用于商品列表和详情页轮播，第一张自动作为封面
+- 详情图列表: 用于详情页按顺序展示
+- 图片上传API: `POST /api/system/upload/image/`（单图）和 `POST /api/system/upload/images/`（批量）
 
 ### 交易模块 (trade)
 - ✅ 购物车管理
@@ -225,6 +234,58 @@ npm run dev  # http://localhost:8080
 - ✅ 系统配置
 - ✅ 轮播图管理
 - ✅ 角色权限管理
+- ✅ **图片上传接口**（集成 MinIO）✨ NEW
+
+---
+
+## 📦 MinIO 对象存储 ✨ NEW
+
+### 快速了解
+
+本项目已完全集成 MinIO 对象存储，用于管理产品图片、用户头像等文件。
+
+**核心特性:**
+- ✅ Docker Compose 一键部署，自动启动 MinIO 服务
+- ✅ 产品支持多主图（最多10张）+ 多详情图（最多20张）
+- ✅ 第一张主图自动作为封面图
+- ✅ 图片上传 API 完整集成
+- ✅ 前端示例组件（管理后台 + H5 详情页）
+
+### 快速使用
+
+```bash
+# 1. 启动所有服务（包含 MinIO）
+docker-compose up -d
+
+# 2. 访问 MinIO 控制台
+# http://localhost:9001
+# 账号: minioadmin / 密码: minioadmin
+
+# 3. 上传图片示例
+curl -X POST http://localhost:8000/api/system/upload/image/ \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "file=@product.jpg"
+
+# 返回: {"url": "http://localhost:9000/yph-products/products/abc123.jpg"}
+
+# 4. 创建商品示例
+curl -X POST http://localhost:8000/api/products/ \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "name": "iPhone 15",
+    "price": 8999.00,
+    "main_images": ["http://localhost:9000/yph-products/img1.jpg"],
+    "detail_images": ["http://localhost:9000/yph-products/detail1.jpg"]
+  }'
+```
+
+### 详细文档
+
+- 📖 [QUICK_START.md](QUICK_START.md) - 一分钟快速开始
+- 🐳 [DOCKER_MINIO_INTEGRATION.md](DOCKER_MINIO_INTEGRATION.md) - MinIO Docker 集成说明
+- 🚀 [backend/README_MINIO.md](backend/README_MINIO.md) - MinIO 快速开始指南
+- 📘 [backend/docs/MINIO_INTEGRATION.md](backend/docs/MINIO_INTEGRATION.md) - MinIO 完整集成文档
+- 📸 [backend/docs/PRODUCT_IMAGES.md](backend/docs/PRODUCT_IMAGES.md) - 产品图片管理详解
 
 ---
 
