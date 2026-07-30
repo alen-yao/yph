@@ -289,3 +289,14 @@ MINIO = {
     'SECURE': os.environ.get('MINIO_SECURE', 'False') == 'True',  # 是否使用HTTPS
     'PUBLIC_URL': os.environ.get('MINIO_PUBLIC_URL', 'http://localhost:9000'),  # 公开访问URL
 }
+
+# Celery 配置
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', f'{REDIS_URL}/1')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', f'{REDIS_URL}/1')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = False
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 任务超时时间：30分钟
