@@ -1,7 +1,7 @@
 <template>
   <div class="home-page">
-    <!-- 顶部搜索栏 -->
-    <div class="search-bar">
+    <!-- 顶部固定搜索栏 -->
+    <div class="search-bar-fixed">
       <van-search
         v-model="searchValue"
         shape="round"
@@ -14,6 +14,9 @@
         </template>
       </van-search>
     </div>
+
+    <!-- 占位元素，避免内容被固定搜索栏遮挡 -->
+    <div class="search-bar-placeholder"></div>
 
     <!-- 轮播图 -->
     <van-swipe class="banner-swiper" :autoplay="3000" indicator-color="#e93323">
@@ -205,11 +208,16 @@ onMounted(() => {
 .home-page {
   min-height: 100vh;
   background: $bg-color;
-  padding-bottom: 50px; // 底部导航栏高度
+  padding-bottom: 50px;
 }
 
-// 搜索栏
-.search-bar {
+// 固定搜索栏
+.search-bar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
   background: linear-gradient(135deg, $theme-color 0%, $theme-color-hover 100%);
   padding: 8px 0;
 
@@ -226,6 +234,11 @@ onMounted(() => {
       color: $text-color-tertiary;
     }
   }
+}
+
+// 搜索栏占位
+.search-bar-placeholder {
+  height: 54px;
 }
 
 // 轮播图

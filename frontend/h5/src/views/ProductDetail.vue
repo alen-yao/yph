@@ -9,7 +9,10 @@
       @click-left="$router.back()"
     >
       <template #right>
-        <van-icon name="share-o" size="18" @click="onShare" />
+        <div class="nav-right-actions">
+          <van-icon name="wap-home-o" size="20" @click="goHome" class="home-icon" />
+          <van-icon name="share-o" size="18" @click="onShare" />
+        </div>
       </template>
     </van-nav-bar>
 
@@ -146,6 +149,10 @@ const product = ref({
   ]
 })
 
+const goHome = () => {
+  router.push('/home')
+}
+
 const onShare = () => {
   showToast('分享功能')
 }
@@ -192,7 +199,6 @@ onMounted(() => {
 .product-detail-page {
   min-height: 100vh;
   background: $bg-color;
-  padding-bottom: 50px;
 }
 
 // 顶部导航
@@ -203,6 +209,25 @@ onMounted(() => {
   .van-nav-bar__arrow,
   .van-icon {
     color: $text-color-white;
+  }
+}
+
+.nav-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .van-icon {
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+
+  .home-icon {
+    font-size: 20px;
   }
 }
 

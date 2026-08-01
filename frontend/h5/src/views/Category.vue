@@ -1,6 +1,22 @@
 <template>
   <div class="category">
-    <van-search v-model="searchValue" placeholder="请输入搜索关键词" @search="handleSearch" />
+    <!-- 固定搜索栏 -->
+    <div class="search-bar-fixed">
+      <van-search
+        v-model="searchValue"
+        placeholder="请输入搜索关键词"
+        shape="round"
+        background="transparent"
+        @click="handleSearch"
+      >
+        <template #left-icon>
+          <van-icon name="search" size="18" />
+        </template>
+      </van-search>
+    </div>
+
+    <!-- 占位元素 -->
+    <div class="search-bar-placeholder"></div>
 
     <div class="category-container">
       <van-sidebar v-model="activeKey">
@@ -72,12 +88,7 @@ const fetchCategories = async () => {
 }
 
 const handleSearch = () => {
-  if (searchValue.value.trim()) {
-    router.push({
-      path: '/products',
-      query: { keyword: searchValue.value }
-    })
-  }
+  router.push('/search')
 }
 
 const handleSubCategoryClick = (categoryId) => {
@@ -92,10 +103,42 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/styles/variables.scss';
+
 .category {
   height: 100vh;
   background: #fff;
+}
+
+// 固定搜索栏
+.search-bar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: linear-gradient(135deg, $theme-color 0%, $theme-color-hover 100%);
+  padding: 8px 0;
+
+  :deep(.van-search) {
+    padding: 0 12px;
+
+    .van-search__content {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding-left: 12px;
+    }
+
+    .van-field__left-icon {
+      color: #969799;
+    }
+  }
+}
+
+// 搜索栏占位
+.search-bar-placeholder {
+  height: 54px;
 }
 
 .category-container {
