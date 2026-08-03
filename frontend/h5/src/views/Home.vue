@@ -1,18 +1,23 @@
 <template>
   <div class="home-page">
-    <!-- 顶部固定搜索栏 -->
-    <div class="search-bar-fixed">
+    <!-- 顶部导航栏 -->
+    <div class="top-nav-bar">
+      <van-icon name="wap-nav" size="20" class="nav-icon" />
       <van-search
         v-model="searchValue"
         shape="round"
-        placeholder="请输入搜索关键词"
+        placeholder="新鲜海南芒果"
         background="transparent"
         @click="onSearchClick"
       >
         <template #left-icon>
-          <van-icon name="search" size="18" />
+          <van-icon name="search" size="16" color="#999" />
         </template>
       </van-search>
+      <div class="nav-right">
+        <van-icon name="ellipsis" size="20" class="nav-icon" />
+        <van-icon name="scan" size="20" class="nav-icon" />
+      </div>
     </div>
 
     <!-- 占位元素，避免内容被固定搜索栏遮挡 -->
@@ -211,34 +216,56 @@ onMounted(() => {
   padding-bottom: 50px;
 }
 
-// 固定搜索栏
-.search-bar-fixed {
+// 顶部导航栏
+.top-nav-bar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 999;
-  background: linear-gradient(135deg, $theme-color 0%, $theme-color-hover 100%);
-  padding: 8px 0;
+  background: #fff;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .nav-icon {
+    color: #333;
+    flex-shrink: 0;
+  }
 
   :deep(.van-search) {
-    padding: 0 12px;
+    flex: 1;
+    padding: 0;
 
     .van-search__content {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: $border-radius-round;
+      background: #f5f5f5;
+      border-radius: 20px;
       padding-left: 12px;
+      padding-right: 12px;
     }
 
-    .van-field__left-icon {
-      color: $text-color-tertiary;
+    .van-field__control {
+      font-size: 14px;
+
+      &::placeholder {
+        color: #999;
+      }
     }
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
   }
 }
 
 // 搜索栏占位
 .search-bar-placeholder {
-  height: 54px;
+  height: 52px;
 }
 
 // 轮播图
@@ -256,14 +283,14 @@ onMounted(() => {
 // 分类区域
 .category-section {
   background: $bg-color-white;
-  padding: $spacing-lg 0;
-  margin-bottom: $spacing-base;
+  padding: 16px 0 20px;
+  margin-bottom: 8px;
 }
 
 .category-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: $spacing-base;
+  gap: 12px 8px;
   padding: 0 $spacing-base;
 }
 
@@ -271,7 +298,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 6px;
   cursor: pointer;
 
   &:active {
@@ -279,23 +306,32 @@ onMounted(() => {
   }
 
   .category-icon {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: $box-shadow-sm;
+    background: #f5f5f5;
+    box-shadow: none;
     transition: transform 0.2s;
 
     &:active {
       transform: scale(0.95);
     }
+
+    :deep(.van-image__img) {
+      border-radius: 50%;
+    }
   }
 
   .category-name {
-    font-size: $font-size-xs;
-    color: $text-color-secondary;
+    font-size: 12px;
+    color: #666;
     text-align: center;
     line-height: 1.2;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -314,53 +350,90 @@ onMounted(() => {
 .product-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-base;
-  padding: $spacing-base;
+  gap: 8px;
+  padding: 8px;
   background: $bg-color;
 }
 
 .product-card {
   background: $bg-color-white;
-  border-radius: $border-radius-lg;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: $box-shadow-sm;
+  box-shadow: none;
+  border: 1px solid #f0f0f0;
   transition: transform 0.2s, box-shadow 0.2s;
 
   &:active {
     transform: translateY(-2px);
-    box-shadow: $box-shadow-base;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .product-image {
     width: 100%;
     height: 180px;
-    background: $bg-color-grey;
+    background: #fafafa;
   }
 
   .product-info {
-    padding: $spacing-base;
+    padding: 10px;
   }
 
   .product-name {
-    font-size: $font-size-base;
+    font-size: 13px;
     color: $text-color-primary;
     line-height: 1.4;
-    min-height: 40px;
-    margin-bottom: $spacing-sm;
+    min-height: 36px;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .product-tags {
     display: flex;
-    gap: $spacing-xs;
-    margin-bottom: $spacing-sm;
+    gap: 4px;
+    margin-bottom: 6px;
+    min-height: 18px;
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #fff;
+      font-weight: 500;
+
+      &.tag-hot {
+        background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+      }
+
+      &.tag-new {
+        background: linear-gradient(135deg, #4CAF50 0%, #43A047 100%);
+      }
+    }
   }
 
   .product-footer {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
+    margin-top: 4px;
+
+    .price {
+      color: #ff4757;
+      font-size: 16px;
+      font-weight: bold;
+
+      &::before {
+        content: '¥';
+        font-size: 12px;
+        margin-right: 1px;
+      }
+    }
 
     .sales {
+      font-size: 11px;
       line-height: 1.5;
     }
   }
