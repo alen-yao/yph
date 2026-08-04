@@ -314,7 +314,7 @@ const goShopping = () => {
 
 // 购物车内容
 .cart-content {
-  padding-bottom: 100px;
+  padding-bottom: 160px; // 结算栏高度 + TabBar高度
 }
 
 // 店铺分组
@@ -416,6 +416,8 @@ const goShopping = () => {
 
 // 结算栏
 .submit-bar {
+  bottom: 54px !important; // 避开底部TabBar
+
   :deep(.van-submit-bar__bar) {
     padding: 8px 16px;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);

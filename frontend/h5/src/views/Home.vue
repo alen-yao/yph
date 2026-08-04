@@ -273,6 +273,7 @@ const onSearch = (value) => {
 }
 
 const goToCategory = () => {
+  // 跳转到分类页面，默认显示第一个省份的第一个二级分类
   router.push('/category')
 }
 
