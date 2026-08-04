@@ -1,18 +1,23 @@
 <template>
   <div class="category">
-    <!-- 固定搜索栏 -->
-    <div class="search-bar-fixed">
+    <!-- 顶部导航栏 -->
+    <div class="top-nav-bar">
+      <van-icon name="wap-nav" size="20" class="nav-icon" />
       <van-search
         v-model="searchValue"
-        placeholder="请输入搜索关键词"
         shape="round"
+        placeholder="新鲜海南芒果"
         background="transparent"
         @click="handleSearch"
       >
         <template #left-icon>
-          <van-icon name="search" size="18" />
+          <van-icon name="search" size="16" color="#999" />
         </template>
       </van-search>
+      <div class="nav-right">
+        <van-icon name="ellipsis" size="20" class="nav-icon" />
+        <van-icon name="scan" size="20" class="nav-icon" />
+      </div>
     </div>
 
     <!-- 占位元素 -->
@@ -111,56 +116,102 @@ onMounted(() => {
   background: #fff;
 }
 
-// 固定搜索栏
-.search-bar-fixed {
+// 顶部导航栏
+.top-nav-bar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 999;
-  background: linear-gradient(135deg, $theme-color 0%, $theme-color-hover 100%);
-  padding: 8px 0;
+  background: #fff;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .nav-icon {
+    color: #333;
+    flex-shrink: 0;
+  }
 
   :deep(.van-search) {
-    padding: 0 12px;
+    flex: 1;
+    padding: 0;
 
     .van-search__content {
-      background: rgba(255, 255, 255, 0.95);
+      background: #f5f5f5;
       border-radius: 20px;
       padding-left: 12px;
+      padding-right: 12px;
     }
 
-    .van-field__left-icon {
-      color: #969799;
+    .van-field__control {
+      font-size: 14px;
+
+      &::placeholder {
+        color: #999;
+      }
     }
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
   }
 }
 
 // 搜索栏占位
 .search-bar-placeholder {
-  height: 54px;
+  height: 52px;
 }
 
 .category-container {
   display: flex;
-  height: calc(100vh - 54px);
+  height: calc(100vh - 52px);
 }
 
-.van-sidebar {
-  width: 25%;
+:deep(.van-sidebar) {
+  width: 90px;
+  background: #f5f5f5;
+
+  .van-sidebar-item {
+    padding: 20px 12px;
+    font-size: 13px;
+    color: #666;
+    background: transparent;
+    border-right: 3px solid transparent;
+
+    &::before {
+      display: none;
+    }
+
+    &--select {
+      color: #333;
+      background: #fff;
+      font-weight: 500;
+      border-right-color: #1a1a1a;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
 }
 
 .category-content {
   flex: 1;
   overflow-y: auto;
-  background: #f7f8fa;
+  background: #fff;
+  padding: 16px 12px;
 }
 
 .subcategory-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  padding: 15px;
+  gap: 16px;
 }
 
 .subcategory-item {
@@ -168,16 +219,20 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 12px 8px;
   font-size: 12px;
+  color: #666;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s;
 
   &:active {
     transform: scale(0.95);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  :deep(.van-image) {
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f5f5f5;
   }
 }
 </style>
