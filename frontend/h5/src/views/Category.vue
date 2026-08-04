@@ -8,7 +8,7 @@
         shape="round"
         placeholder="新鲜海南芒果"
         background="transparent"
-        @click="handleSearch"
+        @search="onSearch"
       >
         <template #left-icon>
           <van-icon name="search" size="16" color="#999" />
@@ -62,6 +62,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { showToast } from 'vant'
 import { getCategoryList } from '@/api/product'
 
 const router = useRouter()
@@ -92,8 +93,11 @@ const fetchCategories = async () => {
   }
 }
 
-const handleSearch = () => {
-  router.push('/search')
+const onSearch = (value) => {
+  if (value.trim()) {
+    showToast(`搜索: ${value}`)
+    // TODO: 执行搜索逻辑
+  }
 }
 
 const handleSubCategoryClick = (categoryId) => {
