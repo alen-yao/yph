@@ -63,29 +63,36 @@
 
       <!-- 右侧商品列表 -->
       <div class="product-area">
-        <div v-if="currentProducts.length > 0" class="product-grid">
+        <div v-if="currentProducts.length > 0" class="product-list">
           <div
             v-for="product in currentProducts"
             :key="product.id"
-            class="product-card"
+            class="product-item"
             @click="goToProduct(product.id)"
           >
             <van-image
               :src="product.image"
               fit="cover"
-              class="product-image"
+              class="product-img"
               lazy-load
             >
               <template #loading>
                 <van-loading type="spinner" size="16" />
               </template>
             </van-image>
-            <div class="product-info">
-              <div class="product-name">{{ product.name }}</div>
-              <div class="product-price">¥{{ product.price }}</div>
-            </div>
-            <div class="add-cart-btn">
-              <van-icon name="plus" size="14" color="#fff" />
+            <div class="product-content">
+              <div class="product-title">{{ product.name }}</div>
+              <div class="product-desc" v-if="product.desc">{{ product.desc }}</div>
+              <div class="product-origin" v-if="product.origin">
+                <van-icon name="location-o" size="10" />
+                {{ product.origin }}
+              </div>
+              <div class="product-footer">
+                <div class="product-price">¥{{ product.price }}</div>
+                <div class="add-btn">
+                  <van-icon name="plus" size="16" color="#fff" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -167,25 +174,74 @@ const mockSubcategories = {
       id: 101,
       name: '鲜菇水果',
       products: [
-        { id: 10101, name: '云南小粒咖啡', price: '58.00', image: 'https://via.placeholder.com/200/8B4513/FFFFFF?text=咖啡' },
-        { id: 10102, name: '野生松茸', price: '128.00', image: 'https://via.placeholder.com/200/CD853F/FFFFFF?text=松茸' },
-        { id: 10103, name: '石榴', price: '39.90', image: 'https://via.placeholder.com/200/DC143C/FFFFFF?text=石榴' },
-        { id: 10104, name: '红心火龙果', price: '45.00', image: 'https://via.placeholder.com/200/FF69B4/FFFFFF?text=火龙果' }
+        {
+          id: 10101,
+          name: '云南小粒咖啡',
+          desc: '香醇浓郁，回味甘甜',
+          origin: '云南普洱',
+          price: '58.00',
+          image: 'https://via.placeholder.com/200/8B4513/FFFFFF?text=咖啡'
+        },
+        {
+          id: 10102,
+          name: '野生松茸',
+          desc: '山珍美味，营养丰富',
+          origin: '云南香格里拉',
+          price: '128.00',
+          image: 'https://via.placeholder.com/200/CD853F/FFFFFF?text=松茸'
+        },
+        {
+          id: 10103,
+          name: '蒙自石榴',
+          desc: '颗粒饱满，汁多味甜',
+          origin: '云南蒙自',
+          price: '39.90',
+          image: 'https://via.placeholder.com/200/DC143C/FFFFFF?text=石榴'
+        },
+        {
+          id: 10104,
+          name: '红心火龙果',
+          desc: '新鲜采摘，营养丰富',
+          origin: '云南元江',
+          price: '45.00',
+          image: 'https://via.placeholder.com/200/FF69B4/FFFFFF?text=火龙果'
+        }
       ]
     },
     {
       id: 102,
       name: '综合',
       products: [
-        { id: 10201, name: '普洱茶饼', price: '88.00', image: 'https://via.placeholder.com/200/556B2F/FFFFFF?text=普洱' },
-        { id: 10202, name: '宣威火腿', price: '168.00', image: 'https://via.placeholder.com/200/8B4513/FFFFFF?text=火腿' }
+        {
+          id: 10201,
+          name: '普洱茶饼',
+          desc: '陈年老茶，醇厚回甘',
+          origin: '云南普洱',
+          price: '88.00',
+          image: 'https://via.placeholder.com/200/556B2F/FFFFFF?text=普洱'
+        },
+        {
+          id: 10202,
+          name: '宣威火腿',
+          desc: '传统工艺，香味浓郁',
+          origin: '云南宣威',
+          price: '168.00',
+          image: 'https://via.placeholder.com/200/8B4513/FFFFFF?text=火腿'
+        }
       ]
     },
     {
       id: 103,
       name: '调料',
       products: [
-        { id: 10301, name: '云南辣椒', price: '25.00', image: 'https://via.placeholder.com/200/FF0000/FFFFFF?text=辣椒' }
+        {
+          id: 10301,
+          name: '云南小米辣',
+          desc: '香辣开胃，佐餐佳品',
+          origin: '云南德宏',
+          price: '25.00',
+          image: 'https://via.placeholder.com/200/FF0000/FFFFFF?text=辣椒'
+        }
       ]
     },
     { id: 104, name: '价格区', products: [] },
@@ -196,17 +252,52 @@ const mockSubcategories = {
       id: 201,
       name: '鲜菇水果',
       products: [
-        { id: 20101, name: '阿克苏苹果', price: '39.90', image: 'https://via.placeholder.com/200/FF6347/FFFFFF?text=苹果' },
-        { id: 20102, name: '库尔勒香梨', price: '45.00', image: 'https://via.placeholder.com/200/FFD700/FFFFFF?text=香梨' },
-        { id: 20103, name: '吐鲁番葡萄', price: '52.00', image: 'https://via.placeholder.com/200/9370DB/FFFFFF?text=葡萄' }
+        {
+          id: 20101,
+          name: '阿克苏冰糖心苹果',
+          desc: '自然冰糖心，脆甜多汁',
+          origin: '新疆阿克苏',
+          price: '39.90',
+          image: 'https://via.placeholder.com/200/FF6347/FFFFFF?text=苹果'
+        },
+        {
+          id: 20102,
+          name: '库尔勒香梨',
+          desc: '皮薄肉嫩，香甜爽口',
+          origin: '新疆库尔勒',
+          price: '45.00',
+          image: 'https://via.placeholder.com/200/FFD700/FFFFFF?text=香梨'
+        },
+        {
+          id: 20103,
+          name: '吐鲁番无核白葡萄',
+          desc: '颗粒饱满，甜度高',
+          origin: '新疆吐鲁番',
+          price: '52.00',
+          image: 'https://via.placeholder.com/200/9370DB/FFFFFF?text=葡萄'
+        }
       ]
     },
     {
       id: 202,
       name: '综合',
       products: [
-        { id: 20201, name: '和田大枣', price: '58.00', image: 'https://via.placeholder.com/200/8B0000/FFFFFF?text=大枣' },
-        { id: 20202, name: '新疆核桃', price: '68.00', image: 'https://via.placeholder.com/200/A0522D/FFFFFF?text=核桃' }
+        {
+          id: 20201,
+          name: '和田骏枣',
+          desc: '肉厚核小，营养丰富',
+          origin: '新疆和田',
+          price: '58.00',
+          image: 'https://via.placeholder.com/200/8B0000/FFFFFF?text=大枣'
+        },
+        {
+          id: 20202,
+          name: '新疆薄皮核桃',
+          desc: '手剥易开，香脆可口',
+          origin: '新疆阿克苏',
+          price: '68.00',
+          image: 'https://via.placeholder.com/200/A0522D/FFFFFF?text=核桃'
+        }
       ]
     },
     { id: 203, name: '进口水果', products: [] },
@@ -217,15 +308,36 @@ const mockSubcategories = {
       id: 301,
       name: '鲜菇水果',
       products: [
-        { id: 30101, name: '烟台苹果', price: '35.00', image: 'https://via.placeholder.com/200/FF4500/FFFFFF?text=苹果' },
-        { id: 30102, name: '莱阳梨', price: '28.00', image: 'https://via.placeholder.com/200/F0E68C/FFFFFF?text=梨' }
+        {
+          id: 30101,
+          name: '烟台红富士苹果',
+          desc: '色泽鲜艳，甜脆可口',
+          origin: '山东烟台',
+          price: '35.00',
+          image: 'https://via.placeholder.com/200/FF4500/FFFFFF?text=苹果'
+        },
+        {
+          id: 30102,
+          name: '莱阳梨',
+          desc: '清甜爽口，果肉细腻',
+          origin: '山东莱阳',
+          price: '28.00',
+          image: 'https://via.placeholder.com/200/F0E68C/FFFFFF?text=梨'
+        }
       ]
     },
     {
       id: 302,
       name: '综合',
       products: [
-        { id: 30201, name: '章丘大葱', price: '18.00', image: 'https://via.placeholder.com/200/32CD32/FFFFFF?text=大葱' }
+        {
+          id: 30201,
+          name: '章丘大葱',
+          desc: '葱白粗长，味道浓郁',
+          origin: '山东章丘',
+          price: '18.00',
+          image: 'https://via.placeholder.com/200/32CD32/FFFFFF?text=大葱'
+        }
       ]
     }
   ],
@@ -234,15 +346,36 @@ const mockSubcategories = {
       id: 401,
       name: '调料',
       products: [
-        { id: 40101, name: '四川花椒', price: '25.00', image: 'https://via.placeholder.com/200/B22222/FFFFFF?text=花椒' },
-        { id: 40102, name: '郫县豆瓣', price: '32.00', image: 'https://via.placeholder.com/200/8B4513/FFFFFF?text=豆瓣' }
+        {
+          id: 40101,
+          name: '汉源花椒',
+          desc: '麻香浓郁，川菜必备',
+          origin: '四川汉源',
+          price: '25.00',
+          image: 'https://via.placeholder.com/200/B22222/FFFFFF?text=花椒'
+        },
+        {
+          id: 40102,
+          name: '郫县豆瓣酱',
+          desc: '传统工艺，酱香浓郁',
+          origin: '四川郫县',
+          price: '32.00',
+          image: 'https://via.placeholder.com/200/8B4513/FFFFFF?text=豆瓣'
+        }
       ]
     },
     {
       id: 402,
       name: '鲜菇水果',
       products: [
-        { id: 40201, name: '蒲江猕猴桃', price: '42.00', image: 'https://via.placeholder.com/200/9ACD32/FFFFFF?text=猕猴桃' }
+        {
+          id: 40201,
+          name: '蒲江红心猕猴桃',
+          desc: '果肉红润，香甜多汁',
+          origin: '四川蒲江',
+          price: '42.00',
+          image: 'https://via.placeholder.com/200/9ACD32/FFFFFF?text=猕猴桃'
+        }
       ]
     }
   ],
@@ -251,7 +384,14 @@ const mockSubcategories = {
       id: 501,
       name: '综合',
       products: [
-        { id: 50101, name: '西湖龙井', price: '128.00', image: 'https://via.placeholder.com/200/556B2F/FFFFFF?text=龙井' }
+        {
+          id: 50101,
+          name: '西湖龙井茶',
+          desc: '明前春茶，清香回甘',
+          origin: '浙江杭州',
+          price: '128.00',
+          image: 'https://via.placeholder.com/200/556B2F/FFFFFF?text=龙井'
+        }
       ]
     }
   ],
@@ -260,14 +400,28 @@ const mockSubcategories = {
       id: 601,
       name: '鲜菇水果',
       products: [
-        { id: 60101, name: '阳澄湖大闸蟹', price: '188.00', image: 'https://via.placeholder.com/200/FF8C00/FFFFFF?text=大闸蟹' }
+        {
+          id: 60101,
+          name: '阳澄湖大闸蟹',
+          desc: '膏肥黄满，肉质鲜美',
+          origin: '江苏苏州',
+          price: '188.00',
+          image: 'https://via.placeholder.com/200/FF8C00/FFFFFF?text=大闸蟹'
+        }
       ]
     },
     {
       id: 602,
       name: '综合',
       products: [
-        { id: 60201, name: '碧螺春', price: '98.00', image: 'https://via.placeholder.com/200/228B22/FFFFFF?text=碧螺春' }
+        {
+          id: 60201,
+          name: '洞庭碧螺春',
+          desc: '茶香四溢，回味无穷',
+          origin: '江苏苏州',
+          price: '98.00',
+          image: 'https://via.placeholder.com/200/228B22/FFFFFF?text=碧螺春'
+        }
       ]
     }
   ]
@@ -563,63 +717,86 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   background: #fff;
-  padding: 12px;
 
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+  .product-list {
+    padding: 0;
   }
 
-  .product-card {
-    position: relative;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
+  .product-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #f5f5f5;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: background 0.2s;
 
     &:active {
-      transform: scale(0.98);
-    }
-
-    .product-image {
-      width: 100%;
-      height: 160px;
       background: #fafafa;
     }
 
-    .product-info {
-      padding: 8px;
+    .product-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fafafa;
+      flex-shrink: 0;
     }
 
-    .product-name {
-      font-size: 13px;
+    .product-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .product-title {
+      font-size: 14px;
+      font-weight: 500;
       color: #333;
       line-height: 1.4;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-desc {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 4px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .product-price {
-      color: #FF6B35;
-      font-size: 16px;
-      font-weight: bold;
-
-      &::before {
-        content: '¥';
-        font-size: 12px;
-      }
+    .product-origin {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 8px;
     }
 
-    .add-cart-btn {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .product-price {
+      color: #FF6B35;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .add-btn {
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
       display: flex;
