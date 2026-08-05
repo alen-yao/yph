@@ -150,14 +150,14 @@ const allProvinces = ref([
   { id: 6, name: '江苏', emoji: '🏮' }
 ])
 
-// 显示的省份（最多4个，不足补充"期待别的地区"）
+// 显示的省份（最多5个，不足5个时补充1个"期待别的地区"）
 const displayProvinces = computed(() => {
-  const provinces = [...allProvinces.value.slice(0, 4)]
+  const provinces = [...allProvinces.value.slice(0, 5)]
 
-  // 如果不足4个，补充"期待别的地区"
-  while (provinces.length < 4) {
+  // 如果不足5个，补充1个"期待别的地区"
+  if (provinces.length < 5) {
     provinces.push({
-      id: `placeholder-${provinces.length}`,
+      id: 'placeholder',
       name: '期待别的地区',
       emoji: '🌟',
       isPlaceholder: true
