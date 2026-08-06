@@ -73,13 +73,13 @@
     <!-- 底部操作栏 -->
     <van-goods-action class="goods-action" safe-area-inset-bottom>
       <van-goods-action-icon icon="chat-o" text="客服" @click="onContact" />
+      <van-goods-action-icon icon="shop-o" text="店铺" @click="visitShop" />
       <van-goods-action-icon
         icon="cart-o"
         text="购物车"
         :badge="cartCount"
         @click="onCart"
       />
-      <van-goods-action-icon icon="star-o" text="收藏" @click="onCollect" />
       <van-goods-action-button
         type="warning"
         text="加入购物车"
