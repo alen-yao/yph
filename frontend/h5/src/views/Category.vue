@@ -571,10 +571,11 @@ onMounted(() => {
 
   .province-tab-item {
     flex-shrink: 0;
+    width: calc(20% - 10px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     cursor: pointer;
     transition: transform 0.2s;
 
@@ -583,8 +584,8 @@ onMounted(() => {
     }
 
     .province-icon {
-      width: 52px;
-      height: 52px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: #f5f5f5;
       display: flex;
@@ -593,12 +594,12 @@ onMounted(() => {
       transition: all 0.3s;
 
       .province-emoji {
-        font-size: 26px;
+        font-size: 30px;
       }
     }
 
     .province-name {
-      font-size: 12px;
+      font-size: 13px;
       color: #666;
       white-space: nowrap;
     }
