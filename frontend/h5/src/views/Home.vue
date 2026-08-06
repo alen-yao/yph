@@ -153,7 +153,9 @@
                     <span class="price-value">{{ product.price }}</span>
                     <span class="price-unit" v-if="product.unit">/{{ product.unit }}</span>
                   </div>
-                  <div class="product-sales">{{ product.sales }}+人购买</div>
+                  <div class="add-to-cart" @click.stop="goToProduct(product.id)">
+                    <van-icon name="shopping-cart-o" size="14" color="#fff" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -714,13 +716,15 @@ onMounted(() => {
 
   .product-footer {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
+    margin-top: 8px;
   }
 
   .product-price {
     color: #FF6B35;
     font-weight: bold;
+    flex: 1;
 
     .price-symbol {
       font-size: 12px;
@@ -738,9 +742,22 @@ onMounted(() => {
     }
   }
 
-  .product-sales {
-    font-size: 11px;
-    color: #999;
+  .add-to-cart {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+
+    &:active {
+      transform: scale(0.9);
+    }
   }
 }
 

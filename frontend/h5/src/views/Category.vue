@@ -89,8 +89,8 @@
               </div>
               <div class="product-footer">
                 <div class="product-price">¥{{ product.price }}</div>
-                <div class="add-btn">
-                  <van-icon name="plus" size="16" color="#fff" />
+                <div class="add-btn" @click.stop="goToProduct(product.id)">
+                  <van-icon name="shopping-cart-o" size="16" color="#fff" />
                 </div>
               </div>
             </div>

@@ -103,8 +103,10 @@
                     <span class="tag tag-new" v-if="product.is_new">新品</span>
                   </div>
                   <div class="product-footer">
-                    <div class="price">{{ product.price }}</div>
-                    <div class="sales text-tertiary text-sm">已售{{ product.sales || 0 }}</div>
+                    <div class="price">¥{{ product.price }}</div>
+                    <div class="add-to-cart" @click.stop="goToProduct(product.id)">
+                      <van-icon name="shopping-cart-o" size="16" color="#fff" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -424,11 +426,25 @@ const goToProduct = (id) => {
 
   .product-footer {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
+    margin-top: $spacing-sm;
 
-    .sales {
-      line-height: 1.5;
+    .add-to-cart {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+      cursor: pointer;
+      transition: transform 0.2s;
+
+      &:active {
+        transform: scale(0.9);
+      }
     }
   }
 }
