@@ -2,7 +2,7 @@
   <div class="product-detail-page">
     <!-- 顶部导航 -->
     <van-nav-bar
-      title="商品详情"
+      :title="product.name"
       left-arrow
       fixed
       placeholder
@@ -10,8 +10,8 @@
     >
       <template #right>
         <div class="nav-right-actions">
-          <van-icon name="wap-home-o" size="20" @click="goHome" class="home-icon" />
-          <van-icon name="share-o" size="18" @click="onShare" />
+          <van-icon name="ellipsis" size="20" @click="onMore" />
+          <van-icon name="video-o" size="20" class="home-icon" />
         </div>
       </template>
     </van-nav-bar>
@@ -26,44 +26,43 @@
     <!-- 价格和标题信息 -->
     <div class="product-header">
       <div class="price-section">
-        <div class="price">{{ product.price }}</div>
-        <div class="market-price" v-if="product.market_price">
-          ¥{{ product.market_price }}
-        </div>
+        <div class="price">¥{{ product.price }}</div>
+        <div class="coupon-link" @click="onCoupon">查看优惠 ></div>
       </div>
       <div class="product-title">{{ product.name }}</div>
-      <div class="product-subtitle" v-if="product.description">
-        {{ product.description }}
-      </div>
-      <div class="product-tags">
-        <span class="tag tag-hot" v-if="product.is_hot">热销</span>
-        <span class="tag tag-new" v-if="product.is_new">新品</span>
-        <span class="sales-info">已售 {{ product.sales || 0 }} 件</span>
+      <div class="share-btn" @click="onShare">
+        <van-icon name="share-o" size="16" />
+        分享
       </div>
     </div>
 
-    <!-- 促销活动 -->
-    <div class="promotion-section" v-if="product.promotions && product.promotions.length">
-      <van-cell
-        v-for="promo in product.promotions"
-        :key="promo.id"
-        :title="promo.title"
-        :label="promo.desc"
-        is-link
-      >
-        <template #icon>
-          <div class="promo-tag">{{ promo.tag }}</div>
-        </template>
-      </van-cell>
+    <!-- 商品评价 -->
+    <div class="review-section" v-if="product.reviews">
+      <div class="review-title">商品评价</div>
+      <div class="review-summary" v-if="product.reviewSummary">
+        <span class="review-tag" v-for="tag in product.reviewSummary" :key="tag.name">
+          {{ tag.name }}({{ tag.count }})
+        </span>
+      </div>
     </div>
 
-    <!-- 商品参数 -->
-    <van-cell-group class="param-section" title="商品参数">
-      <van-cell title="品牌" :value="product.brand || '无'" />
-      <van-cell title="分类" :value="product.category || '无'" />
-      <van-cell title="库存" :value="product.stock ? `${product.stock} 件` : '无货'" />
-      <van-cell title="发货" value="24小时内发货" />
-    </van-cell-group>
+    <!-- 店铺信息 -->
+    <div class="shop-section" v-if="product.shop">
+      <div class="shop-info">
+        <div class="shop-logo">
+          <img :src="product.shop.logo" alt="" />
+        </div>
+        <div class="shop-detail">
+          <div class="shop-name">{{ product.shop.name }}</div>
+          <div class="shop-badges">
+            <span class="badge" v-for="badge in product.shop.badges" :key="badge">
+              <van-icon name="success" size="12" /> {{ badge }}
+            </span>
+          </div>
+        </div>
+        <div class="shop-action" @click="visitShop">进店逛逛</div>
+      </div>
+    </div>
 
     <!-- 商品详情 -->
     <div class="detail-section">
@@ -107,45 +106,34 @@ const cartCount = ref(0)
 
 const product = ref({
   id: 1,
-  name: 'YPH 精选优质商品 - 高品质正品保障 全国联保',
-  price: 299.00,
-  market_price: 599.00,
-  description: '精选优质材料，匠心工艺，为您提供卓越的使用体验',
-  brand: 'YPH官方',
-  category: '数码电器',
-  stock: 999,
-  sales: 12580,
-  is_hot: true,
-  is_new: false,
-  promotions: [
-    { id: 1, tag: '促销', title: '限时优惠', desc: '满299减30，满599减80' },
-    { id: 2, tag: '优惠', title: '新人专享', desc: '新用户立减50元' }
+  name: '李玉双 有机 五常大米 2.5kg',
+  price: 59.5,
+  reviews: true,
+  reviewSummary: [
+    { name: '质量很好', count: 407 },
+    { name: '口感俱佳', count: 316 },
+    { name: '味道很棒', count: 302 },
+    { name: '很划算', count: 120 },
+    { name: '新鲜味美', count: 114 },
+    { name: '营养丰富', count: 69 },
+    { name: '味道鲜美', count: 40 }
   ],
+  shop: {
+    name: '本来生活VIP官方店',
+    logo: 'https://via.placeholder.com/48x48/52c41a/fff?text=本',
+    badges: ['企业认证', '4年有赞店', '品牌认证']
+  },
   detail_html: `
-    <div style="padding: 15px; line-height: 1.8; color: #333;">
-      <h3 style="margin-bottom: 15px; color: #e93323;">产品特点</h3>
-      <p>1. 高品质材料，精工细作</p>
-      <p>2. 人性化设计，使用便捷</p>
-      <p>3. 专业品质保证，售后无忧</p>
-      <br/>
-      <img src="https://via.placeholder.com/375x300/E8F4F8/E93323?text=Product+Detail+1" style="width: 100%; margin: 10px 0;" />
-      <h3 style="margin: 20px 0 15px; color: #e93323;">规格参数</h3>
-      <p>• 产品尺寸：标准尺寸</p>
-      <p>• 产品重量：轻便便携</p>
-      <p>• 包装清单：主机 x1，配件 x1，说明书 x1</p>
-      <br/>
-      <img src="https://via.placeholder.com/375x300/E8F4F8/1890FF?text=Product+Detail+2" style="width: 100%; margin: 10px 0;" />
-      <h3 style="margin: 20px 0 15px; color: #e93323;">温馨提示</h3>
-      <p>• 请仔细阅读产品说明书</p>
-      <p>• 如有质量问题，7天无理由退换</p>
-      <p>• 全国联保，终身维护</p>
+    <div style="padding: 0; line-height: 1.8;">
+      <img src="https://via.placeholder.com/375x500/f5f5f5/333?text=Product+Detail+1" style="width: 100%; display: block;" />
+      <img src="https://via.placeholder.com/375x500/f5f5f5/333?text=Product+Detail+2" style="width: 100%; display: block; margin-top: 10px;" />
+      <img src="https://via.placeholder.com/375x500/f5f5f5/333?text=Product+Detail+3" style="width: 100%; display: block; margin-top: 10px;" />
     </div>
   `,
   images: [
-    'https://via.placeholder.com/375x375/E8F4F8/E93323?text=YPH+Product+1',
-    'https://via.placeholder.com/375x375/FFF7E6/FA8C16?text=YPH+Product+2',
-    'https://via.placeholder.com/375x375/E6F7FF/1890FF?text=YPH+Product+3',
-    'https://via.placeholder.com/375x375/F0F5FF/597EF7?text=YPH+Product+4'
+    'https://via.placeholder.com/375x375/f5f5f5/333?text=Rice+1',
+    'https://via.placeholder.com/375x375/f5f5f5/333?text=Rice+2',
+    'https://via.placeholder.com/375x375/f5f5f5/333?text=Rice+3'
   ]
 })
 
@@ -153,8 +141,20 @@ const goHome = () => {
   router.push('/home')
 }
 
+const onMore = () => {
+  showToast('更多选项')
+}
+
 const onShare = () => {
   showToast('分享功能')
+}
+
+const onCoupon = () => {
+  showToast('查看优惠券')
+}
+
+const visitShop = () => {
+  showToast('进入店铺')
 }
 
 const onPreviewImage = (index) => {
@@ -203,12 +203,18 @@ onMounted(() => {
 
 // 顶部导航
 :deep(.van-nav-bar) {
-  background: linear-gradient(135deg, $theme-color 0%, $theme-color-hover 100%);
+  background: $bg-color-white;
+  border-bottom: 1px solid #f0f0f0;
 
-  .van-nav-bar__title,
+  .van-nav-bar__title {
+    font-size: $font-size-base;
+    font-weight: 400;
+    color: $text-color-primary;
+  }
+
   .van-nav-bar__arrow,
   .van-icon {
-    color: $text-color-white;
+    color: $text-color-primary;
   }
 }
 
@@ -247,105 +253,154 @@ onMounted(() => {
   background: $bg-color-white;
   padding: $spacing-lg;
   margin-bottom: $spacing-base;
+  position: relative;
 
   .price-section {
     display: flex;
-    align-items: baseline;
-    gap: $spacing-sm;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: $spacing-base;
 
     .price {
-      color: $theme-color;
-      font-size: 28px;
-      font-weight: 700;
-
-      &::before {
-        content: '¥';
-        font-size: 18px;
-        margin-right: 2px;
-      }
+      color: $text-color-primary;
+      font-size: 32px;
+      font-weight: 600;
     }
 
-    .market-price {
-      color: $text-color-tertiary;
+    .coupon-link {
+      color: $theme-color;
       font-size: $font-size-sm;
-      text-decoration: line-through;
+      cursor: pointer;
+
+      &:active {
+        opacity: 0.7;
+      }
     }
   }
 
   .product-title {
-    font-size: $font-size-lg;
-    font-weight: 600;
+    font-size: $font-size-base;
+    font-weight: 400;
     color: $text-color-primary;
     line-height: 1.5;
-    margin-bottom: $spacing-sm;
+    margin-bottom: 40px;
   }
 
-  .product-subtitle {
+  .share-btn {
+    position: absolute;
+    bottom: $spacing-lg;
+    right: $spacing-lg;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    background: $bg-color;
+    border-radius: 20px;
     font-size: $font-size-sm;
     color: $text-color-secondary;
-    line-height: 1.5;
+    cursor: pointer;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+}
+
+// 商品评价区域
+.review-section {
+  background: $bg-color-white;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-base;
+
+  .review-title {
+    font-size: $font-size-base;
+    font-weight: 500;
+    color: $text-color-primary;
     margin-bottom: $spacing-base;
   }
 
-  .product-tags {
+  .review-summary {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     gap: $spacing-sm;
 
-    .sales-info {
-      color: $text-color-tertiary;
-      font-size: $font-size-sm;
-      margin-left: auto;
-    }
-  }
-}
-
-// 促销活动区域
-.promotion-section {
-  margin-bottom: $spacing-base;
-
-  :deep(.van-cell) {
-    padding-left: $spacing-lg;
-    padding-right: $spacing-lg;
-
-    .promo-tag {
-      display: inline-block;
-      padding: 2px 6px;
-      background: $theme-color-light;
-      color: $theme-color;
-      font-size: $font-size-xs;
-      border-radius: $border-radius-sm;
-      margin-right: $spacing-sm;
-      font-weight: 500;
-    }
-
-    .van-cell__title {
-      color: $text-color-primary;
-      font-weight: 500;
-    }
-
-    .van-cell__label {
+    .review-tag {
+      padding: 4px 12px;
+      background: $bg-color;
       color: $text-color-secondary;
+      font-size: $font-size-sm;
+      border-radius: 4px;
     }
   }
 }
 
-// 参数区域
-.param-section {
+// 店铺信息区域
+.shop-section {
+  background: $bg-color-white;
+  padding: $spacing-lg;
   margin-bottom: $spacing-base;
 
-  :deep(.van-cell) {
-    padding-left: $spacing-lg;
-    padding-right: $spacing-lg;
-  }
+  .shop-info {
+    display: flex;
+    align-items: center;
+    gap: $spacing-base;
 
-  :deep(.van-cell-group__title) {
-    padding-left: $spacing-lg;
-    padding-right: $spacing-lg;
-    font-size: $font-size-base;
-    font-weight: 600;
-    color: $text-color-primary;
+    .shop-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .shop-detail {
+      flex: 1;
+
+      .shop-name {
+        font-size: $font-size-base;
+        font-weight: 500;
+        color: $text-color-primary;
+        margin-bottom: 4px;
+      }
+
+      .shop-badges {
+        display: flex;
+        gap: $spacing-sm;
+        flex-wrap: wrap;
+
+        .badge {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          font-size: $font-size-xs;
+          color: $text-color-tertiary;
+
+          :deep(.van-icon) {
+            color: #52c41a;
+          }
+        }
+      }
+    }
+
+    .shop-action {
+      padding: 6px 16px;
+      border: 1px solid $theme-color;
+      border-radius: 20px;
+      color: $theme-color;
+      font-size: $font-size-sm;
+      cursor: pointer;
+      flex-shrink: 0;
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
   }
 }
 
