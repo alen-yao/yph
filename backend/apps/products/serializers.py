@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import (Product, ProductCategory, ProductBrand, ProductItem,
                      ProductSpec, ProductSpecValue, ProductComment, ProductTag)
+from utils.minio_client import minio_client
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
@@ -20,7 +21,8 @@ class ProductListSerializer(serializers.ModelSerializer):
     """商品列表序列化器"""
     category_name = serializers.CharField(source='category.name', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
-    cover_image = serializers.ReadOnlyField(help_text='封面图（第一张主图）')
+    cover_image = serializers.SerializerMethodField(help_text='封面图URL（第一张主图）')
+    main_images = serializers.SerializerMethodField(help_text='主图URL列表')
 
     class Meta:
         model = Product
@@ -28,12 +30,26 @@ class ProductListSerializer(serializers.ModelSerializer):
                   'price', 'market_price', 'sales_count', 'rating_average',
                   'is_recommend', 'is_new', 'is_hot', 'state']
 
+    def get_cover_image(self, obj):
+        """获取封面图完整URL"""
+        if obj.main_images and len(obj.main_images) > 0:
+            return minio_client.get_image_url(obj.main_images[0])
+        return None
+
+    def get_main_images(self, obj):
+        """获取主图URL列表"""
+        if obj.main_images:
+            return [minio_client.get_image_url(key) for key in obj.main_images]
+        return []
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     """商品详情序列化器"""
     category_name = serializers.CharField(source='category.name', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
-    cover_image = serializers.ReadOnlyField(help_text='封面图（第一张主图）')
+    cover_image = serializers.SerializerMethodField(help_text='封面图URL（第一张主图）')
+    main_images = serializers.SerializerMethodField(help_text='主图URL列表')
+    detail_images = serializers.SerializerMethodField(help_text='详情图URL列表')
     main_images_count = serializers.ReadOnlyField(help_text='主图数量')
     detail_images_count = serializers.ReadOnlyField(help_text='详情图数量')
 
@@ -41,21 +57,39 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
+    def get_cover_image(self, obj):
+        """获取封面图完整URL"""
+        if obj.main_images and len(obj.main_images) > 0:
+            return minio_client.get_image_url(obj.main_images[0])
+        return None
+
+    def get_main_images(self, obj):
+        """获取主图URL列表"""
+        if obj.main_images:
+            return [minio_client.get_image_url(key) for key in obj.main_images]
+        return []
+
+    def get_detail_images(self, obj):
+        """获取详情图URL列表"""
+        if obj.detail_images:
+            return [minio_client.get_image_url(key) for key in obj.detail_images]
+        return []
+
 
 class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     """商品创建和更新序列化器"""
     main_images = serializers.ListField(
-        child=serializers.URLField(),
+        child=serializers.CharField(),
         required=True,
         allow_empty=False,
-        help_text='主图URL列表，第一张为封面图'
+        help_text='主图对象key列表，第一张为封面图（如：products/2026/08/abc123.jpg）'
     )
     detail_images = serializers.ListField(
-        child=serializers.URLField(),
+        child=serializers.CharField(),
         required=False,
         allow_empty=True,
         default=list,
-        help_text='详情图URL列表'
+        help_text='详情图对象key列表'
     )
 
     class Meta:

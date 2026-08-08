@@ -48,27 +48,40 @@ class MinioClient:
             if not self.client.bucket_exists(self.bucket_name):
                 self.client.make_bucket(self.bucket_name)
                 logger.info(f"创建存储桶: {self.bucket_name}")
-
-                # 设置存储桶为公开读取（可选）
-                policy = {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {"AWS": "*"},
-                            "Action": ["s3:GetObject"],
-                            "Resource": [f"arn:aws:s3:::{self.bucket_name}/*"]
-                        }
-                    ]
-                }
-                import json
-                self.client.set_bucket_policy(self.bucket_name, json.dumps(policy))
-                logger.info(f"设置存储桶 {self.bucket_name} 为公开读取")
             else:
                 logger.info(f"存储桶已存在: {self.bucket_name}")
+
+            # 设置存储桶为公开读取
+            self._set_public_policy()
         except S3Error as e:
             logger.error(f"MinIO 存储桶操作失败: {e}")
             raise
+
+    def _set_public_policy(self):
+        """设置存储桶为公开读取"""
+        try:
+            import json
+            policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"AWS": "*"},
+                        "Action": ["s3:GetObject"],
+                        "Resource": [f"arn:aws:s3:::{self.bucket_name}/*"]
+                    }
+                ]
+            }
+            self.client.set_bucket_policy(self.bucket_name, json.dumps(policy))
+            logger.info(f"设置存储桶 {self.bucket_name} 为公开读取")
+        except S3Error as e:
+            logger.error(f"设置bucket策略失败: {e}")
+            raise
+
+    def set_bucket_public(self):
+        """手动设置bucket为公开（外部调用）"""
+        self._set_public_policy()
+        return True
 
     def upload_file(self, file_obj, file_path=None, folder='products', content_type=None):
         """
@@ -81,13 +94,16 @@ class MinioClient:
             content_type: 文件类型
 
         Returns:
-            str: 文件的访问URL
+            str: 文件的对象key（路径）
         """
         try:
             # 生成文件路径
             if not file_path:
                 ext = os.path.splitext(file_obj.name)[1]
-                file_path = f"{folder}/{uuid.uuid4().hex}{ext}"
+                # 按日期组织文件：products/2026/08/abc123.jpg
+                from datetime import datetime
+                now = datetime.now()
+                file_path = f"{folder}/{now.year}/{now.month:02d}/{uuid.uuid4().hex}{ext}"
 
             # 获取文件内容类型
             if not content_type:
@@ -103,10 +119,9 @@ class MinioClient:
                 content_type=content_type
             )
 
-            # 返回文件访问URL
-            file_url = f"{self.public_url}/{self.bucket_name}/{file_path}"
-            logger.info(f"文件上传成功: {file_url}")
-            return file_url
+            logger.info(f"文件上传成功: {file_path}")
+            # 返回对象key，而不是完整URL
+            return file_path
 
         except S3Error as e:
             logger.error(f"MinIO 文件上传失败: {e}")
@@ -121,15 +136,33 @@ class MinioClient:
             folder: 存储文件夹
 
         Returns:
-            list: 文件URL列表
+            list: 文件对象key列表
         """
-        urls = []
+        keys = []
         for file_obj in files:
-            ext = os.path.splitext(file_obj.name)[1]
-            file_path = f"{folder}/{uuid.uuid4().hex}{ext}"
-            url = self.upload_file(file_obj, file_path)
-            urls.append(url)
-        return urls
+            object_key = self.upload_file(file_obj, folder=folder)
+            keys.append(object_key)
+        return keys
+
+    def get_image_url(self, image_key):
+        """
+        根据对象key生成完整访问URL
+
+        Args:
+            image_key: MinIO对象key（如：products/2026/08/abc123.jpg）
+
+        Returns:
+            str: 完整的访问URL
+        """
+        if not image_key:
+            return None
+
+        # 如果已经是完整URL，直接返回（兼容旧数据）
+        if image_key.startswith('http://') or image_key.startswith('https://'):
+            return image_key
+
+        # 构建完整URL
+        return f"{self.public_url}/{self.bucket_name}/{image_key}"
 
     def delete_file(self, file_path):
         """

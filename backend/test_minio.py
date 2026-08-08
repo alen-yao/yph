@@ -51,28 +51,32 @@ def test_upload_image():
         img_io.size = img_io.getbuffer().nbytes
         img_io.content_type = 'image/jpeg'
 
-        # 上传图片
+        # 上传图片（返回对象key）
         print("正在上传测试图片...")
-        url = minio_client.upload_file(img_io, folder='test')
+        object_key = minio_client.upload_file(img_io, folder='test')
+
+        # 生成完整URL
+        full_url = minio_client.get_image_url(object_key)
 
         print(f"✓ 图片上传成功!")
-        print(f"  URL: {url}")
+        print(f"  对象Key: {object_key}")
+        print(f"  完整URL: {full_url}")
 
-        return url
+        return object_key
     except Exception as e:
         print(f"✗ 上传失败: {e}")
         return None
 
 
-def test_delete_image(file_url):
+def test_delete_image(object_key):
     """测试图片删除"""
     print("\n" + "=" * 50)
     print("测试图片删除...")
     print("=" * 50)
 
     try:
-        print(f"正在删除图片: {file_url}")
-        success = minio_client.delete_file(file_url)
+        print(f"正在删除图片: {object_key}")
+        success = minio_client.delete_file(object_key)
 
         if success:
             print("✓ 图片删除成功!")
@@ -110,15 +114,15 @@ def main():
         return
 
     # 测试上传
-    file_url = test_upload_image()
-    if not file_url:
+    object_key = test_upload_image()
+    if not object_key:
         print("\n" + "=" * 50)
         print("测试失败: 图片上传失败")
         print("=" * 50)
         return
 
     # 测试删除
-    test_delete_image(file_url)
+    test_delete_image(object_key)
 
     # 总结
     print("\n" + "=" * 50)

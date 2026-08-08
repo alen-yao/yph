@@ -47,7 +47,8 @@ class BannerViewSet(viewsets.ReadOnlyModelViewSet):
             description='上传成功',
             examples={
                 'application/json': {
-                    'url': 'http://localhost:9000/yph-products/products/abc123.jpg',
+                    'key': 'products/2026/08/abc123.jpg',
+                    'url': 'http://localhost:9000/yph-products/products/2026/08/abc123.jpg',
                     'message': '图片上传成功'
                 }
             }
@@ -64,10 +65,13 @@ def upload_image(request):
         folder = serializer.validated_data.get('folder', 'products')
 
         try:
-            # 上传到MinIO
-            file_url = minio_client.upload_file(file, folder=folder)
+            # 上传到MinIO，返回对象key
+            object_key = minio_client.upload_file(file, folder=folder)
+            # 生成完整URL供前端预览
+            full_url = minio_client.get_image_url(object_key)
             return Response({
-                'url': file_url,
+                'key': object_key,
+                'url': full_url,
                 'message': '图片上传成功'
             }, status=status.HTTP_200_OK)
         except Exception as e:
@@ -87,9 +91,13 @@ def upload_image(request):
             description='上传成功',
             examples={
                 'application/json': {
+                    'keys': [
+                        'products/2026/08/abc123.jpg',
+                        'products/2026/08/def456.jpg'
+                    ],
                     'urls': [
-                        'http://localhost:9000/yph-products/products/abc123.jpg',
-                        'http://localhost:9000/yph-products/products/def456.jpg'
+                        'http://localhost:9000/yph-products/products/2026/08/abc123.jpg',
+                        'http://localhost:9000/yph-products/products/2026/08/def456.jpg'
                     ],
                     'message': '图片上传成功',
                     'count': 2
@@ -108,12 +116,15 @@ def upload_multiple_images(request):
         folder = serializer.validated_data.get('folder', 'products')
 
         try:
-            # 批量上传到MinIO
-            file_urls = minio_client.upload_multiple_files(files, folder=folder)
+            # 批量上传到MinIO，返回对象key列表
+            object_keys = minio_client.upload_multiple_files(files, folder=folder)
+            # 生成完整URL列表供前端预览
+            full_urls = [minio_client.get_image_url(key) for key in object_keys]
             return Response({
-                'urls': file_urls,
+                'keys': object_keys,
+                'urls': full_urls,
                 'message': '图片上传成功',
-                'count': len(file_urls)
+                'count': len(object_keys)
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
