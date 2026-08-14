@@ -1,12 +1,13 @@
 """系统模块URL配置"""
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (BannerViewSet, UserRoleViewSet,
+from .views import (BannerViewSet, UserRoleViewSet, RegionViewSet,
                     upload_image, upload_multiple_images)
 
 router = DefaultRouter()
 router.register(r'banners', BannerViewSet, basename='banner')
 router.register(r'roles', UserRoleViewSet, basename='role')
+router.register(r'regions', RegionViewSet, basename='region')
 
 urlpatterns = [
     path('', include(router.urls)),

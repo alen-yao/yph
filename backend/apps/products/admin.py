@@ -6,9 +6,11 @@ from .models import (Product, ProductCategory, ProductBrand, ProductItem,
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'parent', 'level', 'sort_order', 'is_show']
-    list_filter = ['level', 'is_show']
+    list_display = ['id', 'name', 'sort_order', 'is_show', 'created_time']
+    list_filter = ['is_show', 'created_time']
     search_fields = ['name']
+    list_editable = ['sort_order', 'is_show']
+    ordering = ['sort_order', 'id']
 
 
 @admin.register(ProductBrand)
@@ -20,9 +22,11 @@ class ProductBrandAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'category', 'brand', 'price', 'stock', 'sales_count', 'state']
-    list_filter = ['state', 'category', 'brand']
-    search_fields = ['name']
+    list_display = ['id', 'name', 'region', 'category', 'brand', 'price', 'stock', 'sales_count', 'state']
+    list_filter = ['state', 'region', 'category', 'brand', 'is_recommend', 'is_new', 'is_hot']
+    search_fields = ['name', 'description']
+    list_editable = ['state']
+    ordering = ['-created_time']
 
 
 @admin.register(ProductItem)

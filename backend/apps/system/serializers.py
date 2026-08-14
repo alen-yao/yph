@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserRole, Banner
+from .models import UserRole, Banner, Region
 import json
 
 
@@ -42,6 +42,28 @@ class UserRoleSerializer(serializers.ModelSerializer):
         if 'permissions' in validated_data and isinstance(validated_data['permissions'], dict):
             validated_data['permissions'] = json.dumps(validated_data['permissions'], ensure_ascii=False)
         return super().update(instance, validated_data)
+
+
+class RegionSerializer(serializers.ModelSerializer):
+    """地区序列化器"""
+    products_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Region
+        fields = ['id', 'code', 'name', 'icon', 'sort_order', 'status',
+                  'products_count', 'created_time', 'updated_time']
+        read_only_fields = ['created_time', 'updated_time']
+
+    def get_products_count(self, obj):
+        """获取该地区下的商品数量"""
+        return obj.products.filter(state=1).count()
+
+
+class RegionListSerializer(serializers.ModelSerializer):
+    """地区列表序列化器（简化版，用于下拉选择等）"""
+    class Meta:
+        model = Region
+        fields = ['id', 'code', 'name', 'icon', 'status']
 
 
 class BannerSerializer(serializers.ModelSerializer):

@@ -43,14 +43,6 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 检查是否有子分类
-        children_count = ProductCategory.objects.filter(parent=instance).count()
-        if children_count > 0:
-            return Response(
-                {'error': f'该分类下有 {children_count} 个子分类，请先删除子分类'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         return super().destroy(request, *args, **kwargs)
 
 
@@ -78,7 +70,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """商品管理"""
     queryset = Product.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'brand', 'state']
+    filterset_fields = ['region', 'category', 'brand', 'state']
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'sales_count', 'rating_average', 'created_time']
 
@@ -88,10 +80,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
     def get_queryset(self):
-        queryset = Product.objects.all()
+        queryset = Product.objects.select_related('region', 'category', 'brand')
+
         # 普通用户只能看到上架的商品
         if not self.request.user.is_staff:
             queryset = queryset.filter(state=1)
+            # 同时只显示启用地区的商品
+            queryset = queryset.filter(region__status=True)
+
         return queryset
 
     def get_serializer_class(self):

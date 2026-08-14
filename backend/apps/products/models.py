@@ -4,6 +4,7 @@
 """
 from django.db import models
 from django.contrib.auth import get_user_model
+from apps.system.models import Region
 
 User = get_user_model()
 
@@ -14,9 +15,6 @@ class ProductCategory(models.Model):
     对应 modulithshop 的 ProductCategory
     """
     name = models.CharField(max_length=100, verbose_name='分类名称')
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE,
-                               related_name='children', verbose_name='父分类')
-    level = models.SmallIntegerField(default=1, verbose_name='分类层级')
     icon = models.ImageField(upload_to='products/categories/', null=True, blank=True, verbose_name='分类图标')
     sort_order = models.IntegerField(default=0, verbose_name='排序')
     is_show = models.BooleanField(default=True, verbose_name='是否显示')
@@ -65,6 +63,8 @@ class Product(models.Model):
     )
 
     name = models.CharField(max_length=200, verbose_name='商品名称')
+    region = models.ForeignKey(Region, on_delete=models.CASCADE,
+                              related_name='products', verbose_name='所属地区')
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE,
                                  related_name='products', verbose_name='商品分类')
     brand = models.ForeignKey(ProductBrand, null=True, blank=True, on_delete=models.SET_NULL,

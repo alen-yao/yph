@@ -61,6 +61,26 @@ class SystemConfig(models.Model):
         return self.config_key
 
 
+class Region(models.Model):
+    """地区/省份"""
+    code = models.CharField(max_length=20, unique=True, verbose_name='地区代码')
+    name = models.CharField(max_length=50, verbose_name='地区名称')
+    icon = models.CharField(max_length=100, blank=True, verbose_name='图标路径')
+    sort_order = models.IntegerField(default=0, verbose_name='排序')
+    status = models.BooleanField(default=False, verbose_name='是否启用')
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+
+    class Meta:
+        db_table = 'region'
+        verbose_name = '地区'
+        verbose_name_plural = verbose_name
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return self.name
+
+
 class Banner(models.Model):
     """轮播图"""
     title = models.CharField(max_length=100, verbose_name='标题')

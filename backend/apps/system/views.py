@@ -1,12 +1,12 @@
 """系统模块视图"""
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import SystemConfig, Banner, UserRole
-from .serializers import (BannerSerializer, UserRoleSerializer,
-                          ImageUploadSerializer, MultipleImageUploadSerializer)
+from .models import SystemConfig, Banner, UserRole, Region
+from .serializers import (BannerSerializer, UserRoleSerializer, RegionSerializer,
+                          RegionListSerializer, ImageUploadSerializer, MultipleImageUploadSerializer)
 from utils.minio_client import minio_client
 
 
@@ -29,6 +29,54 @@ class UserRoleViewSet(viewsets.ModelViewSet):
             )
 
         return super().destroy(request, *args, **kwargs)
+
+
+class RegionViewSet(viewsets.ModelViewSet):
+    """地区管理视图集"""
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        """根据不同接口返回不同的查询集"""
+        queryset = super().get_queryset()
+        # 如果是H5前端调用（list接口），只返回启用的地区
+        if self.action == 'list' and not self.request.user.is_staff:
+            queryset = queryset.filter(status=True)
+        return queryset
+
+    def get_serializer_class(self):
+        """根据不同action使用不同的序列化器"""
+        if self.action == 'enabled_list':
+            return RegionListSerializer
+        return super().get_serializer_class()
+
+    @action(detail=False, methods=['get'])
+    def enabled_list(self, request):
+        """获取所有启用的地区列表（简化版）"""
+        regions = Region.objects.filter(status=True).order_by('sort_order', 'id')
+        serializer = RegionListSerializer(regions, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def toggle_status(self, request, pk=None):
+        """切换地区启用状态"""
+        region = self.get_object()
+        region.status = not region.status
+        region.save()
+        return Response({
+            'id': region.id,
+            'status': region.status,
+            'message': f'地区 {region.name} 已{"启用" if region.status else "禁用"}'
+        })
+
+    @action(detail=False, methods=['post'])
+    def update_sort(self, request):
+        """批量更新地区排序"""
+        region_orders = request.data.get('regions', [])
+        for item in region_orders:
+            Region.objects.filter(id=item['id']).update(sort_order=item['sort_order'])
+        return Response({'message': '排序更新成功'})
 
 
 class BannerViewSet(viewsets.ReadOnlyModelViewSet):

@@ -19,6 +19,8 @@ class ProductBrandSerializer(serializers.ModelSerializer):
 
 class ProductListSerializer(serializers.ModelSerializer):
     """商品列表序列化器"""
+    region_name = serializers.CharField(source='region.name', read_only=True)
+    region_code = serializers.CharField(source='region.code', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
     cover_image = serializers.SerializerMethodField(help_text='封面图URL（第一张主图）')
@@ -26,9 +28,9 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category_name', 'brand_name', 'cover_image', 'main_images',
-                  'price', 'market_price', 'sales_count', 'rating_average',
-                  'is_recommend', 'is_new', 'is_hot', 'state']
+        fields = ['id', 'name', 'region_name', 'region_code', 'category_name', 'brand_name',
+                  'cover_image', 'main_images', 'price', 'market_price', 'sales_count',
+                  'rating_average', 'is_recommend', 'is_new', 'is_hot', 'state']
 
     def get_cover_image(self, obj):
         """获取封面图完整URL"""
@@ -45,6 +47,8 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     """商品详情序列化器"""
+    region_name = serializers.CharField(source='region.name', read_only=True)
+    region_code = serializers.CharField(source='region.code', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
     cover_image = serializers.SerializerMethodField(help_text='封面图URL（第一张主图）')
@@ -94,7 +98,7 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['name', 'category', 'brand', 'main_images', 'detail_images',
+        fields = ['name', 'region', 'category', 'brand', 'main_images', 'detail_images',
                   'description', 'detail_html', 'price', 'market_price',
                   'cost_price', 'stock', 'state', 'sort_order',
                   'is_recommend', 'is_new', 'is_hot']
