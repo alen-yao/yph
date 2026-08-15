@@ -175,7 +175,21 @@ const loadRegions = async () => {
   loading.value = true
   try {
     const res = await getRegionList()
-    regionList.value = res.data || []
+    console.log('API 返回数据:', res)
+
+    // axios 拦截器已经返回 response.data，所以这里的 res 就是后端返回的数据
+    if (Array.isArray(res)) {
+      // 直接返回数组
+      regionList.value = res
+    } else if (res.results && Array.isArray(res.results)) {
+      // DRF 分页格式: { count, results }
+      regionList.value = res.results
+    } else {
+      console.error('未知的数据格式:', res)
+      regionList.value = []
+    }
+
+    console.log('处理后的地区列表:', regionList.value)
   } catch (error) {
     console.error('加载地区列表失败:', error)
     ElMessage.error('加载地区列表失败')

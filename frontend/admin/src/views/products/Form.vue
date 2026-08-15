@@ -342,7 +342,14 @@ const handleSubmit = async () => {
 const fetchRegions = async () => {
   try {
     const res = await getRegionList()
-    regions.value = res.data || []
+    // axios 拦截器已经返回 response.data
+    if (Array.isArray(res)) {
+      regions.value = res
+    } else if (res.results && Array.isArray(res.results)) {
+      regions.value = res.results
+    } else {
+      regions.value = []
+    }
   } catch (error) {
     console.error('获取地区失败', error)
   }

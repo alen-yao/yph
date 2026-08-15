@@ -312,6 +312,97 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+
+        <el-tab-pane label="地区管理" name="region">
+          <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center">
+            <div>
+              <el-text class="text-info">
+                共 {{ regionTotal }} 个地区，已启用 {{ regionEnabledCount }} 个
+              </el-text>
+            </div>
+            <div>
+              <el-button type="primary" @click="handleEnableAllRegions">启用所有地区</el-button>
+              <el-button @click="fetchRegions">
+                <el-icon><Refresh /></el-icon>
+                刷新
+              </el-button>
+            </div>
+          </div>
+
+          <el-table v-loading="regionLoading" :data="regions" border style="width: 100%">
+            <el-table-column prop="id" label="ID" width="80" align="center" />
+
+            <el-table-column label="地区图标" width="100" align="center">
+              <template #default="{ row }">
+                <el-image
+                  :src="getRegionIcon(row.code)"
+                  fit="cover"
+                  style="width: 50px; height: 50px; border-radius: 50%"
+                  :style="{ filter: row.status ? 'none' : 'grayscale(100%) opacity(0.5)' }"
+                >
+                  <template #error>
+                    <div class="image-slot">
+                      <el-icon><Picture /></el-icon>
+                    </div>
+                  </template>
+                </el-image>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="name" label="地区名称" width="150" />
+            <el-table-column prop="code" label="地区代码" width="120" />
+
+            <el-table-column prop="sort_order" label="排序" width="120" sortable="custom">
+              <template #default="{ row }">
+                <el-input-number
+                  v-model="row.sort_order"
+                  :min="0"
+                  :max="999"
+                  size="small"
+                  @change="handleRegionSortUpdate(row)"
+                />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="商品数量" width="120" align="center">
+              <template #default="{ row }">
+                <el-tag>{{ row.products_count || 0 }}</el-tag>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="状态" width="100" align="center">
+              <template #default="{ row }">
+                <el-switch
+                  v-model="row.status"
+                  :loading="row.switching"
+                  @change="handleRegionStatusToggle(row)"
+                />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="创建时间" width="180">
+              <template #default="{ row }">
+                {{ formatDateTime(row.created_time) }}
+              </template>
+            </el-table-column>
+
+            <el-table-column label="操作" fixed="right" width="150" align="center">
+              <template #default="{ row }">
+                <el-button type="primary" size="small" link @click="handleEditRegion(row)">
+                  编辑
+                </el-button>
+                <el-button
+                  :type="row.status ? 'danger' : 'success'"
+                  size="small"
+                  link
+                  @click="handleRegionStatusToggle(row)"
+                >
+                  {{ row.status ? '禁用' : '启用' }}
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
 
@@ -443,6 +534,28 @@
       </template>
     </el-dialog>
 
+    <!-- 地区编辑对话框 -->
+    <el-dialog v-model="regionDialogVisible" title="编辑地区" width="500px">
+      <el-form v-if="currentRegion" :model="currentRegion" label-width="100px">
+        <el-form-item label="地区名称">
+          <el-input v-model="currentRegion.name" disabled />
+        </el-form-item>
+        <el-form-item label="地区代码">
+          <el-input v-model="currentRegion.code" disabled />
+        </el-form-item>
+        <el-form-item label="排序">
+          <el-input-number v-model="currentRegion.sort_order" :min="0" :max="999" />
+        </el-form-item>
+        <el-form-item label="启用状态">
+          <el-switch v-model="currentRegion.status" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="regionDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveRegion">保存</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 图片预览对话框 -->
     <el-dialog v-model="imagePreviewVisible" title="图片预览" width="500px">
       <div style="text-align: center">
@@ -455,8 +568,9 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Refresh, Picture } from '@element-plus/icons-vue'
 import { getCategoryList, createCategory, updateCategory, deleteCategory, getBrandList, createBrand, updateBrand, deleteBrand } from '@/api/product'
-import { getRoleList, createRole, updateRole, deleteRole } from '@/api/system'
+import { getRoleList, createRole, updateRole, deleteRole, getRegionList, updateRegion, toggleRegionStatus } from '@/api/system'
 
 const activeTab = ref('basic')
 const imagePreviewVisible = ref(false)
@@ -898,15 +1012,162 @@ const clearAllPermissions = () => {
   })
 }
 
+// 地区管理
+const regions = ref([])
+const regionLoading = ref(false)
+const regionDialogVisible = ref(false)
+const currentRegion = ref(null)
+
+const regionTotal = computed(() => regions.value.length)
+const regionEnabledCount = computed(() => regions.value.filter(r => r.status).length)
+
+// 获取地区图标
+const getRegionIcon = (code) => {
+  return `/static/regions/${code}.png`
+}
+
+// 加载地区列表
+const fetchRegions = async () => {
+  regionLoading.value = true
+  try {
+    const res = await getRegionList()
+    // axios 拦截器已经返回 response.data
+    if (Array.isArray(res)) {
+      regions.value = res
+    } else if (res.results && Array.isArray(res.results)) {
+      regions.value = res.results
+    } else {
+      regions.value = []
+    }
+  } catch (error) {
+    console.error('加载地区列表失败:', error)
+    ElMessage.error('加载地区列表失败')
+  } finally {
+    regionLoading.value = false
+  }
+}
+
+// 更新排序
+const handleRegionSortUpdate = async (row) => {
+  try {
+    await updateRegion(row.id, { sort_order: row.sort_order })
+    ElMessage.success('排序更新成功')
+    fetchRegions()
+  } catch (error) {
+    console.error('更新排序失败:', error)
+    ElMessage.error('更新排序失败')
+  }
+}
+
+// 切换启用状态
+const handleRegionStatusToggle = async (row) => {
+  const action = row.status ? '禁用' : '启用'
+  try {
+    await ElMessageBox.confirm(
+      `确定要${action}「${row.name}」吗？`,
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    row.switching = true
+    await toggleRegionStatus(row.id)
+    ElMessage.success(`${action}成功`)
+    fetchRegions()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('切换状态失败:', error)
+      ElMessage.error(`${action}失败`)
+      row.status = !row.status // 恢复原状态
+    }
+  } finally {
+    row.switching = false
+  }
+}
+
+// 编辑地区
+const handleEditRegion = (row) => {
+  currentRegion.value = { ...row }
+  regionDialogVisible.value = true
+}
+
+// 保存编辑
+const handleSaveRegion = async () => {
+  try {
+    await updateRegion(currentRegion.value.id, {
+      sort_order: currentRegion.value.sort_order,
+      status: currentRegion.value.status
+    })
+    ElMessage.success('保存成功')
+    regionDialogVisible.value = false
+    fetchRegions()
+  } catch (error) {
+    console.error('保存失败:', error)
+    ElMessage.error('保存失败')
+  }
+}
+
+// 启用所有地区
+const handleEnableAllRegions = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要启用所有地区吗？',
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    regionLoading.value = true
+    // 批量更新
+    const promises = regions.value
+      .filter(r => !r.status)
+      .map(r => toggleRegionStatus(r.id))
+
+    await Promise.all(promises)
+    ElMessage.success('已启用所有地区')
+    fetchRegions()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('启用失败:', error)
+      ElMessage.error('批量启用失败')
+    }
+  } finally {
+    regionLoading.value = false
+  }
+}
+
 onMounted(() => {
   fetchCategories()
   fetchBrands()
   fetchRoles()
+  fetchRegions()
 })
 </script>
 
 <style scoped>
 .el-divider {
   margin: 30px 0 20px;
+}
+
+.text-info {
+  color: #909399;
+  font-size: 14px;
+}
+
+.image-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: #f5f7fa;
+  color: #909399;
+  font-size: 20px;
 }
 </style>
