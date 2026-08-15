@@ -52,7 +52,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'utils.middleware.UTF8ResponseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -98,13 +97,7 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
-            'use_unicode': True,
-            'init_command': (
-                "SET sql_mode='STRICT_TRANS_TABLES';"
-                "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;"
-                "SET CHARACTER SET utf8mb4;"
-                "SET character_set_connection=utf8mb4;"
-            ),
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         }
     }
 }
@@ -161,10 +154,6 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 USE_TZ = False
 
-# 确保默认字符集为 UTF-8
-DEFAULT_CHARSET = 'utf-8'
-FILE_CHARSET = 'utf-8'
-
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -193,7 +182,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': (
-        'utils.renderers.UTF8JSONRenderer',
+        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',

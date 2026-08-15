@@ -36,6 +36,7 @@ class RegionViewSet(viewsets.ModelViewSet):
     queryset = Region.objects.all()
     serializer_class = RegionSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None  # 禁用分页，显示所有地区
 
     def get_queryset(self):
         """根据不同接口返回不同的查询集"""
