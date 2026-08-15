@@ -28,11 +28,9 @@ class UTF8JSONRenderer(JSONRenderer):
             data,
             cls=self.encoder_class,
             indent=indent,
-            ensure_ascii=False,  # 关键：不转义非 ASCII 字符
+            ensure_ascii=False,
             allow_nan=not self.strict,
             separators=separators
         )
 
-        # 返回 UTF-8 编码的字节
-        ret = ret.replace(' ', '\\u2028').replace(' ', '\\u2029')
         return ret.encode(self.charset)
