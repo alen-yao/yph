@@ -21,6 +21,7 @@ export const useUserStore = defineStore('user', () => {
         products: true,
         orders: true,
         marketing: true,
+        system: true,
         settings: true
       }
     }
