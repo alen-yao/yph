@@ -32,6 +32,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="name" label="商品名称" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="region_name" label="所属地区" width="120" align="center" />
         <el-table-column prop="category_name" label="分类" width="120" align="center" />
         <el-table-column prop="price" label="价格" width="100" align="center">
           <template #default="{ row }">

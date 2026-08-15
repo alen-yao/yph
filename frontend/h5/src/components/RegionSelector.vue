@@ -93,6 +93,7 @@ const getRegionIcon = (code) => {
   try {
     return new URL(`../assets/regions/${code}.png`, import.meta.url).href
   } catch (e) {
+    console.error('Failed to load region icon:', code, e)
     return ''
   }
 }

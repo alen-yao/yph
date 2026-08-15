@@ -8,6 +8,21 @@
           <el-input v-model="form.name" placeholder="请输入商品名称" maxlength="200" show-word-limit />
         </el-form-item>
 
+        <el-form-item label="所属地区" prop="region">
+          <el-select v-model="form.region" placeholder="请选择地区" style="width: 100%">
+            <el-option
+              v-for="region in regions"
+              :key="region.id"
+              :label="region.name"
+              :value="region.id"
+              :disabled="!region.status"
+            >
+              <span>{{ region.name }}</span>
+              <span v-if="!region.status" style="color: #ccc; margin-left: 10px">(未启用)</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="商品分类" prop="category">
           <el-select v-model="form.category" placeholder="请选择分类" style="width: 100%">
             <el-option
@@ -202,6 +217,7 @@ import {
   getCategoryList,
   getBrandList
 } from '@/api/product'
+import { getRegionList } from '@/api/system'
 
 const router = useRouter()
 const route = useRoute()
@@ -215,9 +231,11 @@ const productId = ref(null)
 
 const categories = ref([])
 const brands = ref([])
+const regions = ref([])
 
 const form = reactive({
   name: '',
+  region: null,
   category: null,
   brand: null,
   main_images: [],
@@ -236,6 +254,7 @@ const form = reactive({
 
 const rules = {
   name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+  region: [{ required: true, message: '请选择所属地区', trigger: 'change' }],
   category: [{ required: true, message: '请选择分类', trigger: 'change' }],
   brand: [{ required: true, message: '请选择品牌', trigger: 'change' }],
   main_images: [
@@ -320,6 +339,15 @@ const handleSubmit = async () => {
   }
 }
 
+const fetchRegions = async () => {
+  try {
+    const res = await getRegionList()
+    regions.value = res.data || []
+  } catch (error) {
+    console.error('获取地区失败', error)
+  }
+}
+
 const fetchCategories = async () => {
   try {
     const res = await getCategoryList()
@@ -365,8 +393,8 @@ const fetchProductDetail = async (id) => {
 }
 
 onMounted(async () => {
-  // 获取分类和品牌列表
-  await Promise.all([fetchCategories(), fetchBrands()])
+  // 获取地区、分类和品牌列表
+  await Promise.all([fetchRegions(), fetchCategories(), fetchBrands()])
 
   // 如果是编辑模式，获取商品详情
   if (route.params.id) {

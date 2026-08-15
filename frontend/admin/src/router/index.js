@@ -94,6 +94,12 @@ const router = createRouter({
           meta: { title: '编辑优惠券', hidden: true }
         },
         {
+          path: '/regions',
+          name: 'Regions',
+          component: () => import('@/views/system/RegionList.vue'),
+          meta: { title: '地区管理', icon: 'Location', permission: 'system' }
+        },
+        {
           path: '/settings',
           name: 'Settings',
           component: () => import('@/views/settings/Index.vue'),
