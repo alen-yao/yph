@@ -17,8 +17,20 @@
               :value="region.id"
               :disabled="!region.status"
             >
-              <span>{{ region.name }}</span>
-              <span v-if="!region.status" style="color: #ccc; margin-left: 10px">(未启用)</span>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <el-image
+                  :src="`http://localhost:8000/static/regions/${region.code}.png`"
+                  fit="cover"
+                  style="width: 20px; height: 20px; border-radius: 50%"
+                  :style="{ filter: region.status ? 'none' : 'grayscale(100%) opacity(0.5)' }"
+                >
+                  <template #error>
+                    <div style="width: 20px; height: 20px"></div>
+                  </template>
+                </el-image>
+                <span>{{ region.name }}</span>
+                <span v-if="!region.status" style="color: #ccc; margin-left: 10px">(未启用)</span>
+              </div>
             </el-option>
           </el-select>
         </el-form-item>

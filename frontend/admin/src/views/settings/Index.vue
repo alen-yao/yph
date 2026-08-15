@@ -1023,7 +1023,8 @@ const regionEnabledCount = computed(() => regions.value.filter(r => r.status).le
 
 // 获取地区图标
 const getRegionIcon = (code) => {
-  return `/static/regions/${code}.png`
+  // 管理后台使用后端的静态文件路径
+  return `http://localhost:8000/static/regions/${code}.png`
 }
 
 // 加载地区列表
