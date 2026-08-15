@@ -373,9 +373,9 @@
             <el-table-column label="状态" width="100" align="center">
               <template #default="{ row }">
                 <el-switch
-                  v-model="row.status"
+                  :model-value="row.status"
                   :loading="row.switching"
-                  @change="handleRegionStatusToggle(row)"
+                  @change="(val) => handleRegionStatusToggle(row, val)"
                 />
               </template>
             </el-table-column>
@@ -1061,8 +1061,12 @@ const handleRegionSortUpdate = async (row) => {
 }
 
 // 切换启用状态
-const handleRegionStatusToggle = async (row) => {
-  const action = row.status ? '禁用' : '启用'
+const handleRegionStatusToggle = async (row, newStatus = undefined) => {
+  // 如果传入了 newStatus，说明是从 switch 调用，使用传入的值
+  // 如果没传，说明是从按钮调用，取反当前状态
+  const targetStatus = newStatus !== undefined ? newStatus : !row.status
+  const action = targetStatus ? '启用' : '禁用'
+
   try {
     await ElMessageBox.confirm(
       `确定要${action}「${row.name}」吗？`,
@@ -1082,7 +1086,6 @@ const handleRegionStatusToggle = async (row) => {
     if (error !== 'cancel') {
       console.error('切换状态失败:', error)
       ElMessage.error(`${action}失败`)
-      row.status = !row.status // 恢复原状态
     }
   } finally {
     row.switching = false
