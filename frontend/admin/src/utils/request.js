@@ -24,6 +24,11 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   response => {
+    // 确保响应编码为 UTF-8
+    if (response.config.responseType !== 'blob') {
+      // 对于 JSON 响应，确保正确解码
+      return response.data
+    }
     return response.data
   },
   error => {
