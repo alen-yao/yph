@@ -50,7 +50,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """商品管理"""
     queryset = Product.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['region', 'category', 'brand', 'state']
+    filterset_fields = ['region', 'category', 'state']
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'sales_count', 'rating_average', 'created_time']
 
@@ -60,7 +60,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
     def get_queryset(self):
-        queryset = Product.objects.select_related('region', 'category', 'brand')
+        queryset = Product.objects.select_related('region', 'category')
 
         # 普通用户只能看到上架的商品
         if not self.request.user.is_staff:

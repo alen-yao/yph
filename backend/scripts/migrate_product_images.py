@@ -108,7 +108,8 @@ def create_sample_products():
     print("\n创建示例商品数据...")
 
     try:
-        from apps.products.models import ProductCategory, ProductBrand
+        from apps.products.models import ProductCategory
+        from apps.system.models import Region
 
         # 创建分类
         category, _ = ProductCategory.objects.get_or_create(
@@ -116,17 +117,17 @@ def create_sample_products():
             defaults={'sort_order': 1, 'is_show': True}
         )
 
-        # 创建品牌
-        brand, _ = ProductBrand.objects.get_or_create(
-            name='测试品牌',
-            defaults={'sort_order': 1, 'is_show': True}
+        # 获取或创建地区（北京）
+        region, _ = Region.objects.get_or_create(
+            code='beijing',
+            defaults={'name': '北京', 'sort_order': 1, 'status': True}
         )
 
         # 创建示例商品
         product = Product.objects.create(
             name='示例商品 - iPhone 15',
+            region=region,
             category=category,
-            brand=brand,
             price=8999.00,
             market_price=9999.00,
             stock=100,
