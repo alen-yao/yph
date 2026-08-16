@@ -23,9 +23,9 @@
           <template #default="{ row }">
             <el-image
               v-if="row.cover_image"
-              :src="row.cover_image"
+              :src="getImageUrl(row.cover_image)"
               fit="cover"
-              :preview-src-list="row.main_images || [row.cover_image]"
+              :preview-src-list="(row.main_images || [row.cover_image]).map(getImageUrl)"
               style="width: 60px; height: 60px; border-radius: 4px"
             />
             <span v-else style="color: #999; font-size: 12px">暂无图片</span>
@@ -93,6 +93,17 @@ const fetchData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 获取图片完整URL
+const getImageUrl = (key) => {
+  if (!key) return ''
+  // 如果已经是完整URL，直接返回
+  if (key.startsWith('http://') || key.startsWith('https://')) {
+    return key
+  }
+  // 否则拼接 MinIO 公开访问地址
+  return `http://localhost:9000/yph-products/${key}`
 }
 
 const handleReset = () => {
