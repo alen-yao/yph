@@ -30,28 +30,6 @@ class ProductCategory(models.Model):
         return self.name
 
 
-class ProductBrand(models.Model):
-    """
-    商品品牌
-    对应 modulithshop 的 ProductBrand
-    """
-    name = models.CharField(max_length=100, verbose_name='品牌名称')
-    logo = models.ImageField(upload_to='products/brands/', null=True, blank=True, verbose_name='品牌Logo')
-    description = models.TextField(blank=True, verbose_name='品牌描述')
-    sort_order = models.IntegerField(default=0, verbose_name='排序')
-    is_show = models.BooleanField(default=True, verbose_name='是否显示')
-    created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-
-    class Meta:
-        db_table = 'product_brand'
-        verbose_name = '商品品牌'
-        verbose_name_plural = verbose_name
-        ordering = ['sort_order', 'id']
-
-    def __str__(self):
-        return self.name
-
-
 class Product(models.Model):
     """
     商品基础信息
@@ -67,8 +45,6 @@ class Product(models.Model):
                               related_name='products', verbose_name='所属地区')
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE,
                                  related_name='products', verbose_name='商品分类')
-    brand = models.ForeignKey(ProductBrand, null=True, blank=True, on_delete=models.SET_NULL,
-                             related_name='products', verbose_name='品牌')
 
     # 商品图片（存储MinIO的URL）
     main_images = models.JSONField(default=list, verbose_name='主图列表',

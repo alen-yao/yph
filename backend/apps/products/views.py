@@ -2,9 +2,9 @@
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import (Product, ProductCategory, ProductBrand,
+from .models import (Product, ProductCategory,
                      ProductComment, ProductItem)
-from .serializers import (ProductCategorySerializer, ProductBrandSerializer,
+from .serializers import (ProductCategorySerializer,
                           ProductListSerializer, ProductDetailSerializer,
                           ProductCreateUpdateSerializer,
                           ProductCommentSerializer, ProductItemSerializer)
@@ -44,26 +44,6 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
             )
 
         return super().destroy(request, *args, **kwargs)
-
-
-class ProductBrandViewSet(viewsets.ModelViewSet):
-    """商品品牌管理"""
-    queryset = ProductBrand.objects.all()
-    serializer_class = ProductBrandSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['name']
-    ordering_fields = ['sort_order', 'created_time']
-
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
-
-    def get_queryset(self):
-        queryset = ProductBrand.objects.all()
-        if not self.request.user.is_staff:
-            queryset = queryset.filter(is_show=True)
-        return queryset
 
 
 class ProductViewSet(viewsets.ModelViewSet):

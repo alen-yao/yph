@@ -1,6 +1,6 @@
 """商品模块序列化器"""
 from rest_framework import serializers
-from .models import (Product, ProductCategory, ProductBrand, ProductItem,
+from .models import (Product, ProductCategory, ProductItem,
                      ProductSpec, ProductSpecValue, ProductComment, ProductTag)
 from utils.minio_client import minio_client
 
@@ -11,24 +11,17 @@ class ProductCategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductBrandSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductBrand
-        fields = '__all__'
-
-
 class ProductListSerializer(serializers.ModelSerializer):
     """商品列表序列化器"""
     region_name = serializers.CharField(source='region.name', read_only=True)
     region_code = serializers.CharField(source='region.code', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
-    brand_name = serializers.CharField(source='brand.name', read_only=True)
     cover_image = serializers.SerializerMethodField(help_text='封面图URL（第一张主图）')
     main_images = serializers.SerializerMethodField(help_text='主图URL列表')
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'region_name', 'region_code', 'category_name', 'brand_name',
+        fields = ['id', 'name', 'region_name', 'region_code', 'category_name',
                   'cover_image', 'main_images', 'price', 'market_price', 'sales_count',
                   'rating_average', 'is_recommend', 'is_new', 'is_hot', 'state']
 
@@ -50,7 +43,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     region_name = serializers.CharField(source='region.name', read_only=True)
     region_code = serializers.CharField(source='region.code', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
-    brand_name = serializers.CharField(source='brand.name', read_only=True)
     cover_image = serializers.SerializerMethodField(help_text='封面图URL（第一张主图）')
     main_images = serializers.SerializerMethodField(help_text='主图URL列表')
     detail_images = serializers.SerializerMethodField(help_text='详情图URL列表')
@@ -98,7 +90,7 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['name', 'region', 'category', 'brand', 'main_images', 'detail_images',
+        fields = ['name', 'region', 'category', 'main_images', 'detail_images',
                   'description', 'detail_html', 'price', 'market_price',
                   'cost_price', 'stock', 'state', 'sort_order',
                   'is_recommend', 'is_new', 'is_hot']

@@ -44,23 +44,3 @@ export const updateCategory = (id, data) => {
 export const deleteCategory = (id) => {
   return request.delete(`/products/categories/${id}/`)
 }
-
-// 获取品牌列表
-export const getBrandList = (params) => {
-  return request.get('/products/brands/', { params })
-}
-
-// 创建品牌
-export const createBrand = (data) => {
-  return request.post('/products/brands/', data)
-}
-
-// 更新品牌
-export const updateBrand = (id, data) => {
-  return request.put(`/products/brands/${id}/`, data)
-}
-
-// 删除品牌
-export const deleteBrand = (id) => {
-  return request.delete(`/products/brands/${id}/`)
-}

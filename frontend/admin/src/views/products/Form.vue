@@ -46,17 +46,6 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="商品品牌" prop="brand">
-          <el-select v-model="form.brand" placeholder="请选择品牌" style="width: 100%">
-            <el-option
-              v-for="brand in brands"
-              :key="brand.id"
-              :label="brand.name"
-              :value="brand.id"
-            />
-          </el-select>
-        </el-form-item>
-
         <el-form-item label="主图" prop="main_images">
           <ImageUpload
             v-model="form.main_images"
@@ -152,8 +141,7 @@ import {
   getProductDetail,
   createProduct,
   updateProduct,
-  getCategoryList,
-  getBrandList
+  getCategoryList
 } from '@/api/product'
 import { getRegionList } from '@/api/system'
 
@@ -165,14 +153,12 @@ const isEdit = ref(false)
 const productId = ref(null)
 
 const categories = ref([])
-const brands = ref([])
 const regions = ref([])
 
 const form = reactive({
   name: '',
   region: null,
   category: null,
-  brand: null,
   main_images: [],
   detail_images: [],
   description: '',
@@ -191,7 +177,6 @@ const rules = {
   name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
   region: [{ required: true, message: '请选择所属地区', trigger: 'change' }],
   category: [{ required: true, message: '请选择分类', trigger: 'change' }],
-  brand: [{ required: true, message: '请选择品牌', trigger: 'change' }],
   main_images: [
     { required: true, message: '请至少添加一张主图', trigger: 'change' },
     { type: 'array', min: 1, message: '请至少添加一张主图', trigger: 'change' }
@@ -255,14 +240,6 @@ const fetchCategories = async () => {
   }
 }
 
-const fetchBrands = async () => {
-  try {
-    const res = await getBrandList()
-    brands.value = res.results || res
-  } catch (error) {
-    console.error('获取品牌失败', error)
-  }
-}
 
 // 从 URL 提取 MinIO key
 const extractKeyFromUrl = (url) => {
@@ -291,7 +268,6 @@ const fetchProductDetail = async (id) => {
     form.name = res.name
     form.region = res.region
     form.category = res.category
-    form.brand = res.brand
     form.description = res.description || ''
     form.price = res.price
     form.market_price = res.market_price
@@ -309,8 +285,8 @@ const fetchProductDetail = async (id) => {
 }
 
 onMounted(async () => {
-  // 获取地区、分类和品牌列表
-  await Promise.all([fetchRegions(), fetchCategories(), fetchBrands()])
+  // 获取地区和分类列表
+  await Promise.all([fetchRegions(), fetchCategories()])
 
   // 如果是编辑模式，获取商品详情
   if (route.params.id) {

@@ -231,37 +231,6 @@
           </el-table>
         </el-tab-pane>
 
-        <el-tab-pane label="商品品牌" name="brand">
-          <div style="margin-bottom: 20px">
-            <el-button type="primary" @click="handleAddBrand">添加品牌</el-button>
-          </div>
-
-          <el-table :data="brands" border style="width: 100%">
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="name" label="品牌名称" width="200" />
-            <el-table-column prop="description" label="品牌描述" min-width="200" show-overflow-tooltip />
-            <el-table-column prop="sort_order" label="排序" width="100" />
-            <el-table-column label="是否显示" width="100">
-              <template #default="{ row }">
-                <el-tag :type="row.is_show ? 'success' : 'danger'">
-                  {{ row.is_show ? '显示' : '隐藏' }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="created_time" label="创建时间" width="180">
-              <template #default="{ row }">
-                {{ formatDateTime(row.created_time) }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="200" fixed="right">
-              <template #default="{ row }">
-                <el-button type="primary" link @click="handleEditBrand(row)">编辑</el-button>
-                <el-button type="danger" link @click="handleDeleteBrand(row)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-tab-pane>
-
         <el-tab-pane label="用户角色" name="role">
           <el-alert
             title="角色权限管理"
@@ -444,41 +413,6 @@
       </template>
     </el-dialog>
 
-    <!-- 品牌编辑对话框 -->
-    <el-dialog v-model="brandDialogVisible" :title="brandForm.id ? '编辑品牌' : '添加品牌'" width="600px">
-      <el-form ref="brandFormRef" :model="brandForm" :rules="brandRules" label-width="120px">
-        <el-form-item label="品牌名称" prop="name">
-          <el-input v-model="brandForm.name" placeholder="请输入品牌名称" />
-        </el-form-item>
-
-        <el-form-item label="品牌描述" prop="description">
-          <el-input
-            v-model="brandForm.description"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入品牌描述（可选）"
-          />
-        </el-form-item>
-
-        <el-form-item label="品牌Logo" prop="logo">
-          <el-input v-model="brandForm.logo" placeholder="请输入Logo URL（可选）" />
-        </el-form-item>
-
-        <el-form-item label="排序" prop="sort_order">
-          <el-input-number v-model="brandForm.sort_order" :min="0" />
-        </el-form-item>
-
-        <el-form-item label="是否显示" prop="is_show">
-          <el-switch v-model="brandForm.is_show" />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <el-button @click="brandDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="brandSaving" @click="handleSaveBrand">保存</el-button>
-      </template>
-    </el-dialog>
-
     <!-- 角色编辑对话框 -->
     <el-dialog v-model="roleDialogVisible" :title="roleForm.id ? '编辑角色' : '添加角色'" width="700px">
       <el-form ref="roleFormRef" :model="roleForm" :rules="roleRules" label-width="120px">
@@ -569,7 +503,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Picture } from '@element-plus/icons-vue'
-import { getCategoryList, createCategory, updateCategory, deleteCategory, getBrandList, createBrand, updateBrand, deleteBrand } from '@/api/product'
+import { getCategoryList, createCategory, updateCategory, deleteCategory } from '@/api/product'
 import { getRoleList, createRole, updateRole, deleteRole, getRegionList, updateRegion, toggleRegionStatus } from '@/api/system'
 
 const activeTab = ref('basic')
@@ -598,24 +532,6 @@ const categoryRules = {
 const parentCategories = computed(() => {
   return categories.value.filter(cat => cat.id !== categoryForm.id)
 })
-
-// 商品品牌管理
-const brands = ref([])
-const brandDialogVisible = ref(false)
-const brandSaving = ref(false)
-const brandFormRef = ref()
-const brandForm = reactive({
-  id: null,
-  name: '',
-  description: '',
-  logo: '',
-  sort_order: 0,
-  is_show: true
-})
-
-const brandRules = {
-  name: [{ required: true, message: '请输入品牌名称', trigger: 'blur' }]
-}
 
 // 用户角色管理
 const roles = ref([])
@@ -823,93 +739,6 @@ const handleDeleteCategory = async (row) => {
 const formatDateTime = (dateTime) => {
   if (!dateTime) return '-'
   return new Date(dateTime).toLocaleString('zh-CN')
-}
-
-// 品牌管理方法
-const fetchBrands = async () => {
-  try {
-    const res = await getBrandList()
-    brands.value = res.results || res
-  } catch (error) {
-    ElMessage.error('获取品牌列表失败')
-  }
-}
-
-const handleAddBrand = () => {
-  Object.assign(brandForm, {
-    id: null,
-    name: '',
-    description: '',
-    logo: '',
-    sort_order: 0,
-    is_show: true
-  })
-  brandDialogVisible.value = true
-}
-
-const handleEditBrand = (row) => {
-  Object.assign(brandForm, {
-    id: row.id,
-    name: row.name,
-    description: row.description || '',
-    logo: row.logo || '',
-    sort_order: row.sort_order,
-    is_show: row.is_show
-  })
-  brandDialogVisible.value = true
-}
-
-const handleSaveBrand = async () => {
-  await brandFormRef.value.validate()
-  brandSaving.value = true
-
-  try {
-    const data = {
-      name: brandForm.name,
-      description: brandForm.description || '',
-      logo: brandForm.logo || null,
-      sort_order: brandForm.sort_order,
-      is_show: brandForm.is_show
-    }
-
-    if (brandForm.id) {
-      await updateBrand(brandForm.id, data)
-      ElMessage.success('更新成功')
-    } else {
-      await createBrand(data)
-      ElMessage.success('添加成功')
-    }
-
-    brandDialogVisible.value = false
-    await fetchBrands()
-  } catch (error) {
-    ElMessage.error(error.response?.data?.error || error.message || '操作失败')
-  } finally {
-    brandSaving.value = false
-  }
-}
-
-const handleDeleteBrand = async (row) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除品牌"${row.name}"吗？`,
-      '删除确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-
-    await deleteBrand(row.id)
-    ElMessage.success('删除成功')
-    await fetchBrands()
-  } catch (error) {
-    if (error === 'cancel') {
-      return
-    }
-    ElMessage.error(error.response?.data?.error || error.message || '删除失败')
-  }
 }
 
 // 角色管理方法
@@ -1148,7 +977,6 @@ const handleEnableAllRegions = async () => {
 
 onMounted(() => {
   fetchCategories()
-  fetchBrands()
   fetchRoles()
   fetchRegions()
 })
