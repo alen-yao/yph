@@ -84,6 +84,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const userStore = useUserStore()
 const imageList = ref([])
+const isInternalUpdate = ref(false) // 防止循环更新的标志
 
 // 上传接口配置
 const uploadUrl = '/api/v1/system/upload/image/'
@@ -96,14 +97,26 @@ const uploadData = computed(() => ({
 
 // 监听 modelValue 变化
 watch(() => props.modelValue, (newVal) => {
-  imageList.value = (newVal || []).map((url, index) => ({
-    uid: `${Date.now()}_${index}`,
-    url
-  }))
+  if (isInternalUpdate.value) {
+    isInternalUpdate.value = false
+    return
+  }
+
+  const newUrls = newVal || []
+  const currentUrls = imageList.value.map(item => item.url)
+
+  // 只有当数据真的不同时才更新
+  if (JSON.stringify(newUrls) !== JSON.stringify(currentUrls)) {
+    imageList.value = newUrls.map((url, index) => ({
+      uid: `img_${index}_${url.substring(url.length - 10)}`, // 使用稳定的 uid
+      url
+    }))
+  }
 }, { immediate: true })
 
 // 监听 imageList 变化，同步到父组件
 watch(imageList, (newVal) => {
+  isInternalUpdate.value = true
   emit('update:modelValue', newVal.map(item => item.url))
 }, { deep: true })
 
@@ -142,9 +155,10 @@ const beforeUpload = (file) => {
 // 上传成功
 const handleSuccess = (response) => {
   if (response.key) {
+    const key = response.key
     imageList.value.push({
-      uid: `${Date.now()}_${imageList.value.length}`,
-      url: response.key  // 保存 MinIO key
+      uid: `img_${imageList.value.length}_${key.substring(key.length - 10)}`,
+      url: key  // 保存 MinIO key
     })
     ElMessage.success('上传成功')
   } else {
