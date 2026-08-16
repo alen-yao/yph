@@ -86,7 +86,7 @@ const userStore = useUserStore()
 const imageList = ref([])
 
 // 上传接口配置
-const uploadUrl = '/api/v1/system/upload_image/'
+const uploadUrl = '/api/v1/system/upload/image/'
 const uploadHeaders = computed(() => ({
   Authorization: `Bearer ${userStore.token}`
 }))
