@@ -50,7 +50,13 @@
           @click="onProvinceClick(province)"
         >
           <div class="province-icon">
-            <div class="province-emoji">{{ province.emoji }}</div>
+            <img
+              v-if="province.code !== 'more'"
+              :src="getRegionIcon(province.code)"
+              :alt="province.name"
+              class="province-img"
+            />
+            <van-icon v-else name="apps-o" size="28" />
           </div>
           <div class="province-name">{{ province.name }}</div>
         </div>
@@ -63,7 +69,11 @@
       <div class="zone-card" v-for="zone in featureZones" :key="zone.id">
         <div class="zone-header">
           <div class="zone-title">
-            <span class="zone-emoji">{{ zone.emoji }}</span>
+            <img
+              :src="zone.icon"
+              :alt="zone.title"
+              class="zone-icon"
+            />
             <span class="zone-name">{{ zone.title }}</span>
           </div>
           <van-button size="mini" plain hairline @click="goToZone(zone.id)">
@@ -126,7 +136,7 @@
             >
               <div class="product-image-wrapper">
                 <van-image
-                  :src="product.main_image"
+                  :src="product.cover_image || product.main_images?.[0]"
                   fit="cover"
                   class="product-image"
                   lazy-load
@@ -135,23 +145,25 @@
                     <van-loading type="spinner" size="20" />
                   </template>
                 </van-image>
-                <div class="product-badge" v-if="product.badge">
-                  <van-tag plain type="danger" size="mini">{{ product.badge }}</van-tag>
+                <div class="product-badge" v-if="product.is_new">
+                  <van-tag plain type="danger" size="mini">新品</van-tag>
+                </div>
+                <div class="product-badge" v-else-if="product.is_hot">
+                  <van-tag plain type="danger" size="mini">热销</van-tag>
                 </div>
               </div>
 
               <div class="product-info">
                 <div class="product-origin-tag">
                   <van-icon name="location-o" size="10" />
-                  {{ product.origin }}
+                  {{ product.region?.name || '产地直供' }}
                 </div>
                 <div class="product-name">{{ product.name }}</div>
-                <div class="product-desc" v-if="product.desc">{{ product.desc }}</div>
+                <div class="product-desc" v-if="product.description">{{ product.description }}</div>
                 <div class="product-footer">
                   <div class="product-price">
                     <span class="price-symbol">¥</span>
                     <span class="price-value">{{ product.price }}</span>
-                    <span class="price-unit" v-if="product.unit">/{{ product.unit }}</span>
                   </div>
                   <div class="add-to-cart" @click.stop="goToProduct(product.id)">
                     <van-icon name="shopping-cart-o" size="14" color="#fff" />
@@ -170,99 +182,24 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
+import { getBannerList, getEnabledRegions, getProductList } from '@/api/product'
 
 const router = useRouter()
 const searchValue = ref('')
 const refreshing = ref(false)
 const loading = ref(false)
 const finished = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
 
 // 轮播图
-const banners = ref([
-  { id: 1, image: 'https://via.placeholder.com/750x360/FF6B35/FFFFFF?text=全国特产·优选好货' },
-  { id: 2, image: 'https://via.placeholder.com/750x360/4ECDC4/FFFFFF?text=地道风味·源产地直供' },
-  { id: 3, image: 'https://via.placeholder.com/750x360/95E1D3/FFFFFF?text=新鲜到家·品质保障' }
-])
+const banners = ref([])
 
 // 热门省份
-const provinces = ref([
-  { id: 1, name: '云南', emoji: '🌄' },
-  { id: 2, name: '新疆', emoji: '🏔️' },
-  { id: 3, name: '山东', emoji: '🌊' },
-  { id: 4, name: '四川', emoji: '🌶️' },
-  { id: 5, name: '浙江', emoji: '🍃' },
-  { id: 6, name: '江苏', emoji: '🏮' },
-  { id: 7, name: '广东', emoji: '🌴' },
-  { id: 8, name: '福建', emoji: '🍊' },
-  { id: 9, name: '海南', emoji: '🥥' },
-  { id: 10, name: '更多', emoji: '📍' }
-])
+const provinces = ref([])
 
 // 特色专区
-const featureZones = ref([
-  {
-    id: 1,
-    title: '云南特产',
-    emoji: '🌄',
-    products: [
-      {
-        id: 101,
-        name: '云南小粒咖啡',
-        origin: '云南普洱',
-        image: 'https://via.placeholder.com/160/8B4513/FFFFFF?text=咖啡',
-        price: '58.00',
-        sales: 1200
-      },
-      {
-        id: 102,
-        name: '文山三七粉',
-        origin: '云南文山',
-        image: 'https://via.placeholder.com/160/228B22/FFFFFF?text=三七',
-        price: '128.00',
-        sales: 856
-      },
-      {
-        id: 103,
-        name: '宣威火腿',
-        origin: '云南宣威',
-        image: 'https://via.placeholder.com/160/DC143C/FFFFFF?text=火腿',
-        price: '168.00',
-        sales: 645
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: '新疆特产',
-    emoji: '🏔️',
-    products: [
-      {
-        id: 201,
-        name: '若羌红枣',
-        origin: '新疆若羌',
-        image: 'https://via.placeholder.com/160/CD5C5C/FFFFFF?text=红枣',
-        price: '45.00',
-        sales: 2100
-      },
-      {
-        id: 202,
-        name: '阿克苏苹果',
-        origin: '新疆阿克苏',
-        image: 'https://via.placeholder.com/160/FF6347/FFFFFF?text=苹果',
-        price: '39.90',
-        sales: 1580
-      },
-      {
-        id: 203,
-        name: '和田大枣',
-        origin: '新疆和田',
-        image: 'https://via.placeholder.com/160/8B0000/FFFFFF?text=大枣',
-        price: '52.00',
-        sales: 980
-      }
-    ]
-  }
-])
+const featureZones = ref([])
 
 // 全部特产列表
 const productList = ref([])
@@ -280,74 +217,159 @@ const goToCategory = () => {
 }
 
 const onProvinceClick = (province) => {
-  showToast(`查看${province.name}特产`)
-  // TODO: 跳转到该省份的特产列表
+  if (province.code === 'more') {
+    // 点击"更多"跳转到分类页面
+    router.push('/category')
+  } else {
+    // 跳转到该省份的商品列表
+    router.push({
+      path: '/category',
+      query: { region: province.code }
+    })
+  }
 }
 
 const goToZone = (zoneId) => {
-  showToast(`查看专区`)
-  // TODO: 跳转到专区页面
+  // 根据专区ID查找对应的地区
+  const zone = featureZones.value.find(z => z.id === zoneId)
+  if (zone) {
+    // 跳转到该地区的分类页面
+    const region = provinces.value.find(p => p.id === zoneId)
+    if (region) {
+      router.push({
+        path: '/category',
+        query: { region: region.code }
+      })
+    }
+  }
 }
 
-const onRefresh = () => {
+const onRefresh = async () => {
   refreshing.value = true
   productList.value = []
   finished.value = false
+  currentPage.value = 1
 
-  setTimeout(() => {
-    onLoad()
-    refreshing.value = false
-  }, 1000)
+  await onLoad()
+  refreshing.value = false
 }
 
-const onLoad = () => {
+const onLoad = async () => {
   if (refreshing.value) return
 
   loading.value = true
 
-  const origins = ['云南昆明', '新疆和田', '山东烟台', '四川成都', '浙江杭州', '江苏苏州', '广东广州', '福建福州', '海南三亚']
-  const specialties = [
-    { name: '野生菌礼盒', badge: '新鲜直供' },
-    { name: '手工核桃糕', badge: '传统工艺' },
-    { name: '山地蜂蜜', badge: '农家自采' },
-    { name: '茶叶礼盒', badge: '明前春茶' },
-    { name: '阳澄湖大闸蟹', badge: '产地直发' },
-    { name: '烟台苹果', badge: '脆甜多汁' },
-    { name: '海南芒果', badge: '热带水果' },
-    { name: '松茸干货', badge: '野生精选' }
-  ]
-
-  setTimeout(() => {
-    for (let i = 0; i < 10; i++) {
-      const index = productList.value.length
-      const specialty = specialties[index % specialties.length]
-      const origin = origins[index % origins.length]
-
-      productList.value.push({
-        id: 1000 + index,
-        name: specialty.name,
-        desc: '原产地直供，新鲜品质保障',
-        origin: origin,
-        main_image: `https://via.placeholder.com/200/F4A460/FFFFFF?text=${specialty.name}`,
-        price: (Math.random() * 150 + 20).toFixed(2),
-        unit: index % 3 === 0 ? '500g' : index % 3 === 1 ? '盒' : '份',
-        sales: Math.floor(Math.random() * 5000 + 100),
-        badge: Math.random() > 0.6 ? specialty.badge : null
-      })
+  try {
+    const params = {
+      page: currentPage.value,
+      page_size: pageSize.value,
+      state: 1 // 只获取上架的商品
     }
-    loading.value = false
+    const res = await getProductList(params)
+    const newProducts = res.data?.results || []
 
-    if (productList.value.length >= 40) {
+    // 追加商品到列表
+    productList.value = [...productList.value, ...newProducts]
+
+    // 判断是否还有更多数据
+    if (!res.data?.next || newProducts.length < pageSize.value) {
       finished.value = true
+    } else {
+      currentPage.value++
     }
-  }, 800)
+  } catch (error) {
+    console.error('获取商品列表失败:', error)
+    showToast('获取商品列表失败')
+    finished.value = true
+  } finally {
+    loading.value = false
+  }
 }
 
 const goToProduct = (id) => {
   router.push(`/product/${id}`)
 }
 
+// 获取轮播图数据
+const fetchBanners = async () => {
+  try {
+    const res = await getBannerList()
+    banners.value = res.data || []
+  } catch (error) {
+    console.error('获取轮播图失败:', error)
+  }
+}
+
+// 获取省份图标
+const getRegionIcon = (code) => {
+  try {
+    return new URL(`../assets/regions/${code}.png`, import.meta.url).href
+  } catch (e) {
+    console.error('Failed to load region icon:', code, e)
+    return ''
+  }
+}
+
+// 获取省份数据
+const fetchProvinces = async () => {
+  try {
+    const res = await getEnabledRegions()
+    let regions = res.data || []
+
+    // 添加"更多"按钮
+    if (regions.length > 0) {
+      provinces.value = [
+        ...regions.slice(0, 9),
+        { id: 'more', name: '更多', code: 'more' }
+      ]
+    }
+
+    // 获取前2个省份的特色商品，用于特色专区展示
+    await fetchFeatureZones(regions.slice(0, 2))
+  } catch (error) {
+    console.error('获取省份列表失败:', error)
+  }
+}
+
+// 获取特色专区数据
+const fetchFeatureZones = async (regions) => {
+  try {
+    const zones = []
+    for (const region of regions) {
+      // 获取该地区的推荐商品（前3个）
+      const res = await getProductList({
+        region: region.id,
+        is_recommend: true,
+        state: 1,
+        page_size: 3
+      })
+      const products = res.data?.results || []
+
+      if (products.length > 0) {
+        zones.push({
+          id: region.id,
+          title: `${region.name}特产`,
+          icon: getRegionIcon(region.code),
+          products: products.map(p => ({
+            id: p.id,
+            name: p.name,
+            origin: region.name,
+            image: p.cover_image || p.main_images?.[0] || '',
+            price: p.price,
+            sales: p.sales_count
+          }))
+        })
+      }
+    }
+    featureZones.value = zones
+  } catch (error) {
+    console.error('获取特色专区数据失败:', error)
+  }
+}
+
 onMounted(() => {
+  fetchBanners()
+  fetchProvinces()
   // 初始加载第一页数据会自动触发
 })
 </script>
@@ -488,8 +510,11 @@ onMounted(() => {
     }
   }
 
-  .province-emoji {
-    font-size: 28px;
+  .province-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .province-name {
@@ -521,10 +546,13 @@ onMounted(() => {
   .zone-title {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 
-    .zone-emoji {
-      font-size: 20px;
+    .zone-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: cover;
+      border-radius: 50%;
     }
 
     .zone-name {

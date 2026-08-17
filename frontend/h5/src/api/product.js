@@ -29,3 +29,8 @@ export const getCategoryList = (params) => {
 export const getBrandList = () => {
   return request.get('/products/brands/')
 }
+
+// 获取轮播图列表
+export const getBannerList = () => {
+  return request.get('/system/banners/')
+}
