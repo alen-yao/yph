@@ -144,7 +144,8 @@ const syncToUrl = () => {
 const fetchCategories = async () => {
   try {
     const res = await getCategoryList({ is_show: true })
-    categories.value = res.data?.results || res.data || []
+    // 响应拦截器已经返回了 response.data，所以直接使用
+    categories.value = res?.results || res || []
     console.log('分类数据:', categories.value)
     initFromUrl()
     // 如果地区已经选中，则加载商品
@@ -179,7 +180,8 @@ const fetchProducts = async () => {
     }
     console.log('加载商品参数:', params)
     const res = await getProductList(params)
-    products.value = res.data?.results || res.data || []
+    // 响应拦截器已经返回了 response.data，所以直接使用
+    products.value = res?.results || res || []
     console.log('商品数据:', products.value)
   } catch (error) {
     console.error('获取商品失败:', error)

@@ -131,12 +131,14 @@ const loadRegions = async () => {
   try {
     // 获取所有地区（含未启用，用于弹窗展示）
     const allRes = await getAllRegions()
-    allRegions.value = allRes.data || []
+    // 响应拦截器已经返回了 response.data，所以直接使用
+    allRegions.value = allRes || []
     console.log('RegionSelector - 所有地区:', allRegions.value)
 
     // 获取启用的地区（用于顶部展示）
     const enabledRes = await getEnabledRegions()
-    enabledRegions.value = enabledRes.data || []
+    // 响应拦截器已经返回了 response.data，所以直接使用
+    enabledRegions.value = enabledRes || []
     console.log('RegionSelector - 启用的地区:', enabledRegions.value)
 
     // 如果没有当前选中地区，默认选中第一个启用的地区
