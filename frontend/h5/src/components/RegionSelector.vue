@@ -173,16 +173,18 @@ defineExpose({
 }
 
 .region-tabs {
-  padding: 14px 16px;
+  padding: 16px;
   border-bottom: 1px solid #f0f0f0;
+  background: #fff;
 }
 
 .tabs-container {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
 
   &::-webkit-scrollbar {
     display: none;
@@ -194,40 +196,43 @@ defineExpose({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
   transition: all 0.3s;
 
   &.active {
     .region-icon {
-      border-color: #1a1a1a;
+      border-color: #FF6B35;
+      box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
     }
     .region-name {
-      color: #1a1a1a;
+      color: #FF6B35;
       font-weight: 600;
     }
   }
 
   &.more {
     .van-icon {
-      width: 50px;
-      height: 50px;
+      width: 54px;
+      height: 54px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 2px solid #e5e5e5;
       border-radius: 50%;
+      background: #fafafa;
     }
   }
 }
 
 .region-icon {
-  width: 50px;
-  height: 50px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid transparent;
   transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .region-name {
@@ -235,6 +240,7 @@ defineExpose({
   color: #666;
   white-space: nowrap;
   transition: all 0.3s;
+  font-weight: 500;
 }
 
 .region-popup {

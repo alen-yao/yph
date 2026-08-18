@@ -84,7 +84,15 @@
             </div>
           </div>
         </div>
-        <van-empty v-else-if="!loading" description="暂无商品" />
+        <div v-else-if="!loading && !currentRegion" class="empty-hint">
+          <van-icon name="location-o" size="48" color="#ddd" />
+          <p>请选择地区查看商品</p>
+        </div>
+        <div v-else-if="!loading && !currentCategory" class="empty-hint">
+          <van-icon name="apps-o" size="48" color="#ddd" />
+          <p>请选择分类查看商品</p>
+        </div>
+        <van-empty v-else-if="!loading" description="暂无商品" image="search" />
         <van-loading v-if="loading" type="spinner" vertical>
           加载中...
         </van-loading>
@@ -275,37 +283,41 @@ onMounted(() => {
   padding-bottom: 54px; // 底部TabBar高度
 }
 
-// 左侧分类（增大尺寸）
+// 左侧分类（优化视觉效果）
 .category-sidebar {
-  width: 100px;
-  background: #f5f5f5;
+  width: 88px;
+  background: #f7f8fa;
   overflow-y: auto;
   flex-shrink: 0;
 
   .category-item {
     position: relative;
-    padding: 22px 10px;
+    padding: 18px 8px;
     text-align: center;
     cursor: pointer;
-    background: #f5f5f5;
-    transition: all 0.2s;
+    background: #f7f8fa;
+    transition: all 0.3s;
+    margin: 4px 0;
 
     &:active {
-      background: #e8e8e8;
+      background: #eee;
     }
 
     .category-text {
       font-size: 14px;
       color: #666;
-      line-height: 1.4;
+      line-height: 1.5;
       word-break: break-all;
+      font-weight: 500;
     }
 
     &.active {
       background: #fff;
+      border-radius: 0 12px 12px 0;
+      margin-right: 4px;
 
       .category-text {
-        color: #1a1a1a;
+        color: #FF6B35;
         font-weight: 600;
       }
 
@@ -315,8 +327,8 @@ onMounted(() => {
         top: 50%;
         transform: translateY(-50%);
         width: 3px;
-        height: 24px;
-        background: #1a1a1a;
+        height: 28px;
+        background: linear-gradient(to bottom, #FF6B35, #ff8c5a);
         border-radius: 0 2px 2px 0;
       }
     }
@@ -439,6 +451,20 @@ onMounted(() => {
 
   .van-loading {
     padding: 40px 0;
+  }
+
+  .empty-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: #999;
+
+    p {
+      margin-top: 16px;
+      font-size: 14px;
+    }
   }
 }
 </style>
