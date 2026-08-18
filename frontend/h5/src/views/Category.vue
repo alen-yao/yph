@@ -145,7 +145,12 @@ const fetchCategories = async () => {
   try {
     const res = await getCategoryList({ is_show: true })
     categories.value = res.data?.results || res.data || []
+    console.log('分类数据:', categories.value)
     initFromUrl()
+    // 如果地区已经选中，则加载商品
+    if (currentRegion.value && currentCategory.value) {
+      fetchProducts()
+    }
   } catch (error) {
     console.error('获取分类失败:', error)
     showToast('获取分类失败')
@@ -154,7 +159,13 @@ const fetchCategories = async () => {
 
 // 获取商品列表
 const fetchProducts = async () => {
+  console.log('fetchProducts 调用', {
+    currentRegion: currentRegion.value,
+    currentCategory: currentCategory.value
+  })
+
   if (!currentRegion.value || !currentCategory.value) {
+    console.log('地区或分类为空，跳过加载商品')
     products.value = []
     return
   }
@@ -166,8 +177,10 @@ const fetchProducts = async () => {
       category: currentCategory.value.id,
       state: 1
     }
+    console.log('加载商品参数:', params)
     const res = await getProductList(params)
     products.value = res.data?.results || res.data || []
+    console.log('商品数据:', products.value)
   } catch (error) {
     console.error('获取商品失败:', error)
     showToast('获取商品失败')
@@ -191,6 +204,7 @@ const onSearch = (value) => {
 
 // 地区变化
 const onRegionChange = (region) => {
+  console.log('地区变化:', region)
   currentRegion.value = region
   syncToUrl()
   fetchProducts()
@@ -207,11 +221,6 @@ const onCategoryChange = (index) => {
 const goToProduct = (productId) => {
   router.push(`/product/${productId}`)
 }
-
-// 监听地区和分类变化
-watch([currentRegion, currentCategory], () => {
-  fetchProducts()
-})
 
 onMounted(() => {
   fetchCategories()
