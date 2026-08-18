@@ -383,7 +383,7 @@ onMounted(() => {
   padding-bottom: 50px;
 }
 
-// 顶部导航栏
+// 顶部导航栏（增大尺寸和字体）
 .top-nav-bar {
   position: fixed;
   top: 0;
@@ -391,15 +391,16 @@ onMounted(() => {
   right: 0;
   z-index: 999;
   background: #fff;
-  padding: 8px 12px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   .nav-icon {
     color: #333;
     flex-shrink: 0;
+    font-size: 22px;
   }
 
   :deep(.van-search) {
@@ -409,12 +410,13 @@ onMounted(() => {
     .van-search__content {
       background: #f5f5f5;
       border-radius: 20px;
-      padding-left: 12px;
-      padding-right: 12px;
+      padding-left: 14px;
+      padding-right: 14px;
+      height: 38px;
     }
 
     .van-field__control {
-      font-size: 14px;
+      font-size: 15px;
 
       &::placeholder {
         color: #999;
@@ -425,19 +427,19 @@ onMounted(() => {
   .nav-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     flex-shrink: 0;
   }
 }
 
 // 搜索栏占位
 .search-bar-placeholder {
-  height: 52px;
+  height: 58px;
 }
 
-// 轮播图
+// 轮播图（增大高度）
 .banner-swiper {
-  height: 180px;
+  height: 200px;
   background: $bg-color-white;
 
   .banner-img {
@@ -447,31 +449,31 @@ onMounted(() => {
   }
 }
 
-// 省份分类区域
+// 省份分类区域（增大间距）
 .province-section {
   background: $bg-color-white;
-  padding: 16px;
-  margin-bottom: 8px;
+  padding: 18px 16px;
+  margin-bottom: 10px;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 
   .header-left {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
 
   .header-icon {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .section-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: #333;
   }
@@ -480,14 +482,14 @@ onMounted(() => {
 .province-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 16px 8px;
+  gap: 18px 10px;
 }
 
 .province-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
 
   &:active {
@@ -495,8 +497,8 @@ onMounted(() => {
   }
 
   .province-icon {
-    width: 54px;
-    height: 54px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: linear-gradient(135deg, #FFF5E6 0%, #FFE8CC 100%);
     display: flex;
@@ -518,7 +520,7 @@ onMounted(() => {
   }
 
   .province-name {
-    font-size: 12px;
+    font-size: 13px;
     color: #666;
     text-align: center;
     line-height: 1.2;
@@ -575,7 +577,7 @@ onMounted(() => {
 
   .zone-product-card {
     flex-shrink: 0;
-    width: 120px;
+    width: 140px;
     background: #fff;
     cursor: pointer;
 
@@ -585,33 +587,34 @@ onMounted(() => {
   }
 
   .zone-product-image {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     background: #f5f5f5;
     border-radius: 8px;
     overflow: hidden;
   }
 
   .zone-product-info {
-    padding-top: 8px;
+    padding-top: 10px;
   }
 
   .zone-product-name {
-    font-size: 13px;
+    font-size: 14px;
     color: #333;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: 500;
   }
 
   .zone-product-origin {
     display: flex;
     align-items: center;
     gap: 2px;
-    font-size: 11px;
+    font-size: 12px;
     color: #999;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .zone-product-footer {
@@ -622,12 +625,12 @@ onMounted(() => {
 
   .zone-product-price {
     color: #FF6B35;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: bold;
   }
 
   .zone-product-sales {
-    font-size: 10px;
+    font-size: 11px;
     color: #999;
   }
 }
@@ -669,17 +672,17 @@ onMounted(() => {
   }
 }
 
-// 瀑布流商品列表
+// 瀑布流商品列表（增大间距和尺寸）
 .product-waterfall {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  padding: 0 8px;
+  gap: 10px;
+  padding: 0 10px;
 }
 
 .product-card {
   background: $bg-color-white;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s, box-shadow 0.2s;
@@ -695,7 +698,7 @@ onMounted(() => {
 
   .product-image {
     width: 100%;
-    height: 180px;
+    height: 200px;
     background: #fafafa;
   }
 
@@ -706,7 +709,7 @@ onMounted(() => {
   }
 
   .product-info {
-    padding: 10px;
+    padding: 12px;
   }
 
   .product-origin-tag {
@@ -715,28 +718,28 @@ onMounted(() => {
     gap: 2px;
     background: #FFF5E6;
     color: #FF6B35;
-    font-size: 10px;
-    padding: 2px 6px;
+    font-size: 11px;
+    padding: 3px 7px;
     border-radius: 3px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .product-name {
-    font-size: 14px;
+    font-size: 15px;
     color: #333;
     font-weight: 500;
     line-height: 1.4;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .product-desc {
-    font-size: 11px;
+    font-size: 12px;
     color: #999;
     line-height: 1.4;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -746,7 +749,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
   .product-price {
@@ -755,15 +758,15 @@ onMounted(() => {
     flex: 1;
 
     .price-symbol {
-      font-size: 12px;
+      font-size: 13px;
     }
 
     .price-value {
-      font-size: 18px;
+      font-size: 20px;
     }
 
     .price-unit {
-      font-size: 11px;
+      font-size: 12px;
       color: #999;
       font-weight: normal;
       margin-left: 2px;
@@ -771,8 +774,8 @@ onMounted(() => {
   }
 
   .add-to-cart {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
     display: flex;

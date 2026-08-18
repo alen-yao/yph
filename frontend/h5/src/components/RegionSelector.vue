@@ -173,13 +173,13 @@ defineExpose({
 }
 
 .region-tabs {
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .tabs-container {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -194,7 +194,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.3s;
 
@@ -210,8 +210,8 @@ defineExpose({
 
   &.more {
     .van-icon {
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -222,8 +222,8 @@ defineExpose({
 }
 
 .region-icon {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid transparent;
@@ -231,7 +231,7 @@ defineExpose({
 }
 
 .region-name {
-  font-size: 12px;
+  font-size: 13px;
   color: #666;
   white-space: nowrap;
   transition: all 0.3s;
@@ -278,8 +278,8 @@ defineExpose({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px 8px;
+  gap: 10px;
+  padding: 14px 10px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
@@ -307,8 +307,8 @@ defineExpose({
 }
 
 .grid-icon {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid transparent;
@@ -316,7 +316,7 @@ defineExpose({
 }
 
 .grid-name {
-  font-size: 13px;
+  font-size: 14px;
   color: #666;
   text-align: center;
   word-break: break-all;

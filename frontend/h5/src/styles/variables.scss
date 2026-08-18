@@ -36,19 +36,20 @@ $border-radius-base: 4px;
 $border-radius-lg: 6px;
 $border-radius-round: 999px;
 
-// 字体大小
-$font-size-xs: 10px;
-$font-size-sm: 12px;
-$font-size-base: 14px;
-$font-size-lg: 16px;
-$font-size-xl: 18px;
+// 字体大小（增大整体字号）
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-base: 15px;
+$font-size-lg: 17px;
+$font-size-xl: 20px;
+$font-size-xxl: 24px;
 
-// 间距
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-base: 12px;
-$spacing-lg: 16px;
-$spacing-xl: 20px;
+// 间距（增大间距让布局更舒展）
+$spacing-xs: 6px;
+$spacing-sm: 10px;
+$spacing-base: 14px;
+$spacing-lg: 18px;
+$spacing-xl: 24px;
 
 // 阴影
 $box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);

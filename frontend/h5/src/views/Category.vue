@@ -237,13 +237,13 @@ onMounted(() => {
   background: #f5f5f5;
 }
 
-// 顶部搜索栏
+// 顶部搜索栏（增大高度和字体）
 .search-bar {
   position: sticky;
   top: 0;
   z-index: 999;
   background: #fff;
-  padding: 8px 12px;
+  padding: 10px 14px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   :deep(.van-search) {
@@ -252,12 +252,13 @@ onMounted(() => {
     .van-search__content {
       background: #f5f5f5;
       border-radius: 20px;
-      padding-left: 12px;
-      padding-right: 12px;
+      padding-left: 14px;
+      padding-right: 14px;
+      height: 38px;
     }
 
     .van-field__control {
-      font-size: 14px;
+      font-size: 15px;
 
       &::placeholder {
         color: #999;
@@ -274,16 +275,16 @@ onMounted(() => {
   padding-bottom: 54px; // 底部TabBar高度
 }
 
-// 左侧分类
+// 左侧分类（增大尺寸）
 .category-sidebar {
-  width: 90px;
+  width: 100px;
   background: #f5f5f5;
   overflow-y: auto;
   flex-shrink: 0;
 
   .category-item {
     position: relative;
-    padding: 20px 8px;
+    padding: 22px 10px;
     text-align: center;
     cursor: pointer;
     background: #f5f5f5;
@@ -294,7 +295,7 @@ onMounted(() => {
     }
 
     .category-text {
-      font-size: 13px;
+      font-size: 14px;
       color: #666;
       line-height: 1.4;
       word-break: break-all;
@@ -314,7 +315,7 @@ onMounted(() => {
         top: 50%;
         transform: translateY(-50%);
         width: 3px;
-        height: 20px;
+        height: 24px;
         background: #1a1a1a;
         border-radius: 0 2px 2px 0;
       }
@@ -335,8 +336,8 @@ onMounted(() => {
 
   .product-item {
     display: flex;
-    gap: 12px;
-    padding: 12px;
+    gap: 14px;
+    padding: 14px;
     border-bottom: 1px solid #f5f5f5;
     cursor: pointer;
     transition: background 0.2s;
@@ -346,8 +347,8 @@ onMounted(() => {
     }
 
     .product-img {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       border-radius: 8px;
       overflow: hidden;
       background: #fafafa;
@@ -373,11 +374,11 @@ onMounted(() => {
     }
 
     .product-title {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
       color: #333;
-      line-height: 1.4;
-      margin-bottom: 4px;
+      line-height: 1.5;
+      margin-bottom: 6px;
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
@@ -386,9 +387,9 @@ onMounted(() => {
     }
 
     .product-desc {
-      font-size: 12px;
+      font-size: 13px;
       color: #999;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -396,8 +397,8 @@ onMounted(() => {
 
     .product-tags {
       display: flex;
-      gap: 4px;
-      margin-bottom: 8px;
+      gap: 5px;
+      margin-bottom: 10px;
     }
 
     .product-footer {
@@ -413,25 +414,25 @@ onMounted(() => {
 
       .price-symbol {
         color: #ff6b35;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: bold;
       }
 
       .price-value {
         color: #ff6b35;
-        font-size: 18px;
+        font-size: 20px;
         font-weight: bold;
       }
 
       .market-price {
         color: #999;
-        font-size: 11px;
+        font-size: 12px;
         text-decoration: line-through;
       }
     }
 
     .product-sales {
-      font-size: 11px;
+      font-size: 12px;
       color: #999;
     }
   }
