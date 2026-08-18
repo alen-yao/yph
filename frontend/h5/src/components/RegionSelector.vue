@@ -100,11 +100,13 @@ const getRegionIcon = (code) => {
 
 // 选择地区
 const selectRegion = (region) => {
+  console.log('RegionSelector - selectRegion 调用:', region)
   if (!region.status) {
     showToast('该地区暂未开放')
     return
   }
   currentRegion.value = region
+  console.log('RegionSelector - emit change:', region)
   emit('update:modelValue', region)
   emit('change', region)
 }
@@ -130,14 +132,22 @@ const loadRegions = async () => {
     // 获取所有地区（含未启用，用于弹窗展示）
     const allRes = await getAllRegions()
     allRegions.value = allRes.data || []
+    console.log('RegionSelector - 所有地区:', allRegions.value)
 
     // 获取启用的地区（用于顶部展示）
     const enabledRes = await getEnabledRegions()
     enabledRegions.value = enabledRes.data || []
+    console.log('RegionSelector - 启用的地区:', enabledRegions.value)
 
     // 如果没有当前选中地区，默认选中第一个启用的地区
     if (!currentRegion.value && enabledRegions.value.length > 0) {
+      console.log('RegionSelector - 自动选中第一个地区')
       selectRegion(enabledRegions.value[0])
+    } else {
+      console.log('RegionSelector - 已有选中地区或没有可用地区', {
+        currentRegion: currentRegion.value,
+        enabledRegionsLength: enabledRegions.value.length
+      })
     }
   } catch (error) {
     console.error('加载地区数据失败:', error)
