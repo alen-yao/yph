@@ -239,37 +239,41 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .category-page {
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
+  background: #f7f7f7;
+  overflow: hidden;
 }
 
 // 顶部搜索栏（增大高度和字体）
 .search-bar {
-  position: sticky;
-  top: 0;
-  z-index: 999;
+  flex-shrink: 0;
   background: #fff;
-  padding: 10px 14px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 8px 12px;
+  border-bottom: 1px solid #f2f2f2;
 
   :deep(.van-search) {
     padding: 0;
 
     .van-search__content {
-      background: #f5f5f5;
-      border-radius: 20px;
-      padding-left: 14px;
-      padding-right: 14px;
       height: 38px;
+      padding: 0 12px;
+      background: #f6f6f6;
+      border-radius: 19px;
+    }
+
+    .van-field__left-icon {
+      margin-right: 4px;
     }
 
     .van-field__control {
-      font-size: 15px;
+      font-size: 14px;
+      color: #333;
 
       &::placeholder {
-        color: #999;
+        color: #aaa;
       }
     }
   }
@@ -278,46 +282,55 @@ onMounted(() => {
 // 主体内容区域
 .category-main {
   flex: 1;
+  min-height: 0;
   display: flex;
   overflow: hidden;
-  padding-bottom: 54px; // 底部TabBar高度
 }
 
 // 左侧分类（优化视觉效果）
 .category-sidebar {
-  width: 88px;
-  background: #f7f8fa;
+  width: 72px;
+  flex: 0 0 72px;
+  background: #f8f8f8;
   overflow-y: auto;
-  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .category-item {
     position: relative;
-    padding: 18px 8px;
+    min-height: 48px;
+    padding: 14px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    cursor: pointer;
-    background: #f7f8fa;
-    transition: all 0.3s;
-    margin: 4px 0;
-
-    &:active {
-      background: #eee;
-    }
+    background: #f8f8f8;
+    color: #666;
+    transition: background 0.2s, color 0.2s;
 
     .category-text {
-      font-size: 14px;
-      color: #666;
-      line-height: 1.5;
+      max-width: 100%;
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 400;
       word-break: break-all;
-      font-weight: 500;
+    }
+    
+    &:active {
+      background: #f0f0f0;
     }
 
     &.active {
       background: #fff;
-      border-radius: 0 12px 12px 0;
-      margin-right: 4px;
+      color: #222;
+      font-weight: 600;
 
       .category-text {
-        color: #FF6B35;
+        color: #222;
         font-weight: 600;
       }
 
@@ -325,11 +338,11 @@ onMounted(() => {
         position: absolute;
         left: 0;
         top: 50%;
-        transform: translateY(-50%);
         width: 3px;
-        height: 28px;
-        background: linear-gradient(to bottom, #FF6B35, #ff8c5a);
-        border-radius: 0 2px 2px 0;
+        height: 24px;
+        transform: translateY(-50%);
+        background: #e93323;
+        border-radius: 0 3px 3px 0;
       }
     }
   }
@@ -338,33 +351,41 @@ onMounted(() => {
 // 右侧商品区域
 .product-area {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #fff;
-  position: relative;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .product-list {
     padding: 0;
+    width: 100%;
   }
 
   .product-item {
     display: flex;
-    gap: 14px;
-    padding: 14px;
-    border-bottom: 1px solid #f5f5f5;
+    gap: 10px;
+    padding: 10px 10px 10px 8px;
+    min-height: 94px;
+    border-bottom: 1px solid #f2f2f2;
+    background: #fff;
     cursor: pointer;
-    transition: background 0.2s;
 
     &:active {
       background: #fafafa;
     }
 
     .product-img {
-      width: 120px;
-      height: 120px;
-      border-radius: 8px;
+      width: 76px;
+      height: 76px;
+      flex: 0 0 76px;
+      border-radius: 4px;
       overflow: hidden;
-      background: #fafafa;
-      flex-shrink: 0;
+      background: #f7f7f7;
 
       .img-error {
         width: 100%;
@@ -378,19 +399,19 @@ onMounted(() => {
     }
 
     .product-content {
+      min-width: 0;
       flex: 1;
+      min-height: 76px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      min-width: 0;
     }
 
     .product-title {
-      font-size: 15px;
-      font-weight: 500;
+      margin: 0;
       color: #333;
-      line-height: 1.5;
-      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
@@ -399,9 +420,10 @@ onMounted(() => {
     }
 
     .product-desc {
-      font-size: 13px;
+      margin-top: 3px;
       color: #999;
-      margin-bottom: 6px;
+      font-size: 11px;
+      line-height: 1.3;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -409,43 +431,59 @@ onMounted(() => {
 
     .product-tags {
       display: flex;
-      gap: 5px;
-      margin-bottom: 10px;
+      align-items: center;
+      gap: 4px;
+      min-height: 16px;
+      margin-top: 4px;
+
+      :deep(.van-tag) {
+        padding: 1px 4px;
+        font-size: 9px;
+        line-height: 1.3;
+        border-radius: 2px;
+      }
     }
 
     .product-footer {
+      margin-top: auto;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
+      gap: 6px;
     }
 
     .product-price {
       display: flex;
       align-items: baseline;
-      gap: 4px;
+      gap: 1px;
+      min-width: 0;
 
       .price-symbol {
-        color: #ff6b35;
-        font-size: 13px;
-        font-weight: bold;
+        color: #e93323;
+        font-size: 11px;
+        font-weight: 600;
       }
 
       .price-value {
-        color: #ff6b35;
-        font-size: 20px;
-        font-weight: bold;
+        color: #e93323;
+        font-size: 18px;
+        line-height: 1;
+        font-weight: 700;
       }
 
       .market-price {
-        color: #999;
-        font-size: 12px;
+        margin-left: 3px;
+        color: #aaa;
+        font-size: 10px;
         text-decoration: line-through;
       }
     }
 
     .product-sales {
-      font-size: 12px;
-      color: #999;
+      flex-shrink: 0;
+      color: #aaa;
+      font-size: 10px;
+      line-height: 1.2;
     }
   }
 
@@ -454,16 +492,17 @@ onMounted(() => {
   }
 
   .empty-hint {
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 80px 20px;
+    padding: 40px 20px;
     color: #999;
 
     p {
-      margin-top: 16px;
-      font-size: 14px;
+      margin-top: 12px;
+      font-size: 13px;
     }
   }
 }

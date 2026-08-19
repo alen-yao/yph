@@ -169,22 +169,25 @@ defineExpose({
 
 <style lang="scss" scoped>
 .region-selector {
+  flex-shrink: 0;
   background: #fff;
+  border-bottom: 1px solid #f2f2f2;
 }
 
 .region-tabs {
-  padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 7px 10px 6px;
   background: #fff;
 }
 
 .tabs-container {
   display: flex;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 12px;
   overflow-x: auto;
   overflow-y: hidden;
+  padding: 0 2px 1px;
   -webkit-overflow-scrolling: touch;
-  padding: 4px 0;
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
     display: none;
@@ -192,55 +195,58 @@ defineExpose({
 }
 
 .region-item {
-  flex-shrink: 0;
+  flex: 0 0 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
+  color: #666;
   cursor: pointer;
-  transition: all 0.3s;
 
   &.active {
     .region-icon {
-      border-color: #FF6B35;
-      box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+      border-color: #e93323;
     }
     .region-name {
-      color: #FF6B35;
+      color: #e93323;
       font-weight: 600;
     }
   }
 
   &.more {
     .van-icon {
-      width: 54px;
-      height: 54px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px solid #e5e5e5;
+      border: 1px solid #e5e5e5;
       border-radius: 50%;
       background: #fafafa;
+      font-size: 22px;
+      color: #666;
     }
   }
 }
 
 .region-icon {
-  width: 54px;
-  height: 54px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid transparent;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #f7f7f7;
 }
 
 .region-name {
-  font-size: 13px;
+  max-width: 48px;
+  font-size: 10px;
+  line-height: 1.2;
   color: #666;
   white-space: nowrap;
-  transition: all 0.3s;
-  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
 }
 
 .region-popup {
@@ -250,7 +256,7 @@ defineExpose({
 }
 
 .popup-header {
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -271,61 +277,58 @@ defineExpose({
 .popup-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 14px;
 }
 
 .region-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 8px;
 }
 
 .grid-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 14px 10px;
+  gap: 6px;
+  padding: 10px 6px;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
 
   &.active {
-    background: #f7f8fa;
+    background: #fff4f2;
 
     .grid-icon {
-      border-color: #1a1a1a;
+      border-color: #e93323;
     }
     .grid-name {
-      color: #1a1a1a;
+      color: #e93323;
       font-weight: 600;
     }
   }
 
   &.disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.55;
   }
 
   &:not(.disabled):active {
-    background: #f7f8fa;
+    background: #f7f7f7;
   }
 }
 
 .grid-icon {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid transparent;
-  transition: all 0.3s;
 }
 
 .grid-name {
-  font-size: 14px;
+  font-size: 12px;
   color: #666;
   text-align: center;
+  line-height: 1.3;
   word-break: break-all;
-  transition: all 0.3s;
 }
 </style>

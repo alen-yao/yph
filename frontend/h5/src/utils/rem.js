@@ -4,20 +4,18 @@
  * 实际字体大小 = 设备宽度 / 20
  */
 
-const baseSize = 37.5
+const BASE_WIDTH = 375
+const BASE_FONT_SIZE = 37.5
 
 function setRem() {
   // 获取设备宽度
-  const clientWidth = document.documentElement.clientWidth || document.body.clientWidth
+  const clientWidth = document.documentElement.clientWidth || document.body.clientWidth || BASE_WIDTH
 
-  // 限制最大宽度为 750px（避免在大屏设备上字体过大）
-  const width = Math.min(clientWidth, 750)
+  // 以 375px 为基准，并限制大屏 H5 的最大布局宽度。
+  const width = Math.min(clientWidth, BASE_WIDTH)
+  const fontSize = (width / BASE_WIDTH) * BASE_FONT_SIZE
 
-  // 计算并设置根字体大小
-  const scale = width / 750
-  const fontSize = baseSize * scale
-
-  document.documentElement.style.fontSize = fontSize + 'px'
+  document.documentElement.style.fontSize = `${fontSize}px`
 }
 
 // 初始化
