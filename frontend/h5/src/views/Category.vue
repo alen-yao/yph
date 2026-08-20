@@ -47,7 +47,7 @@
             @click="goToProduct(product.id)"
           >
             <van-image
-              :src="product.cover_image"
+              :src="getImageUrl(product.cover_image)"
               fit="cover"
               class="product-img"
               lazy-load
@@ -116,6 +116,21 @@ const categories = ref([])
 const activeCategoryIndex = ref(0)
 const products = ref([])
 const loading = ref(false)
+
+// 处理图片URL，将MinIO的完整URL转换为相对路径
+const getImageUrl = (url) => {
+  if (!url) return ''
+  // 如果是完整URL，提取路径部分
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
+      const urlObj = new URL(url)
+      return urlObj.pathname // 返回路径部分，如：/yph-products/xxx.jpg
+    } catch (e) {
+      return url
+    }
+  }
+  return url
+}
 
 // 当前选中的分类
 const currentCategory = computed(() => {
