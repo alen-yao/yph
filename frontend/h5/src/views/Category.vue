@@ -46,21 +46,13 @@
             class="product-item"
             @click="goToProduct(product.id)"
           >
-            <van-image
+            <!-- 临时调试：使用普通 img 标签 -->
+            <img
               :src="getImageUrl(product.cover_image)"
-              fit="cover"
               class="product-img"
-              lazy-load
-            >
-              <template #loading>
-                <van-loading type="spinner" size="16" />
-              </template>
-              <template #error>
-                <div class="img-error">
-                  <van-icon name="photo-fail" size="24" />
-                </div>
-              </template>
-            </van-image>
+              @error="() => console.log('图片加载失败:', getImageUrl(product.cover_image))"
+              @load="() => console.log('图片加载成功:', getImageUrl(product.cover_image))"
+            />
             <div class="product-content">
               <div class="product-title">{{ product.name }}</div>
               <div class="product-desc" v-if="product.description">
