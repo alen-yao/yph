@@ -185,6 +185,8 @@ const loadRegions = async () => {
         if (region) {
           console.log('RegionSelector - 从 URL 恢复地区:', region)
           selectRegion(region)
+          // 滚动到该地区
+          scrollToRegion(region)
           return
         }
       }
