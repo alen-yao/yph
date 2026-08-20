@@ -50,7 +50,6 @@
               :src="getImageUrl(product.cover_image)"
               fit="cover"
               class="product-img"
-              lazy-load
             >
               <template #loading>
                 <van-loading type="spinner" size="16" />
