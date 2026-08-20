@@ -22,7 +22,15 @@ export default defineConfig({
       },
       '/yph-products': {
         target: 'http://localhost:9000',
-        changeOrigin: true
+        changeOrigin: true,
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('Proxying request to:', proxyReq.path);
+          });
+        }
       }
     }
   }
