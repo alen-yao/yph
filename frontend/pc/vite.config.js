@@ -15,14 +15,6 @@ export default defineConfig({
       '/api': {
         target: 'http://backend:8000',
         changeOrigin: true
-      },
-      '/media': {
-        target: 'http://backend:8000',
-        changeOrigin: true
-      },
-      '/yph-products': {
-        target: 'http://minio:9000',
-        changeOrigin: true
       }
     }
   }

@@ -46,13 +46,21 @@
             class="product-item"
             @click="goToProduct(product.id)"
           >
-            <!-- 临时调试：使用普通 img 标签 -->
-            <img
+            <van-image
               :src="getImageUrl(product.cover_image)"
+              fit="cover"
               class="product-img"
-              @error="() => console.log('图片加载失败:', getImageUrl(product.cover_image))"
-              @load="() => console.log('图片加载成功:', getImageUrl(product.cover_image))"
-            />
+              lazy-load
+            >
+              <template #loading>
+                <van-loading type="spinner" size="16" />
+              </template>
+              <template #error>
+                <div class="img-error">
+                  <van-icon name="photo-fail" size="24" />
+                </div>
+              </template>
+            </van-image>
             <div class="product-content">
               <div class="product-title">{{ product.name }}</div>
               <div class="product-desc" v-if="product.description">
@@ -109,19 +117,15 @@ const activeCategoryIndex = ref(0)
 const products = ref([])
 const loading = ref(false)
 
-// 处理图片URL，将MinIO的完整URL转换为相对路径
+// 处理图片URL（与admin端保持一致）
 const getImageUrl = (url) => {
   if (!url) return ''
-  // 如果是完整URL，提取路径部分
+  // 如果已经是完整URL，直接返回
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    try {
-      const urlObj = new URL(url)
-      return urlObj.pathname // 返回路径部分，如：/yph-products/xxx.jpg
-    } catch (e) {
-      return url
-    }
+    return url
   }
-  return url
+  // 否则拼接 MinIO 公开访问地址
+  return `http://localhost:9000/yph-products/${url}`
 }
 
 // 当前选中的分类
@@ -198,11 +202,6 @@ const fetchProducts = async () => {
     // 响应拦截器已经返回了 response.data，所以直接使用
     products.value = res?.results || res || []
     console.log('商品数据:', products.value)
-    // 调试：打印第一个商品的图片URL
-    if (products.value.length > 0) {
-      console.log('第一个商品的原始cover_image:', products.value[0].cover_image)
-      console.log('转换后的图片URL:', getImageUrl(products.value[0].cover_image))
-    }
   } catch (error) {
     console.error('获取商品失败:', error)
     showToast('获取商品失败')
