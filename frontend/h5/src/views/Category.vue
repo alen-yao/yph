@@ -289,8 +289,8 @@ onMounted(() => {
 
 // 左侧分类（优化视觉效果）
 .category-sidebar {
-  width: 72px;
-  flex: 0 0 72px;
+  width: 88px;
+  flex: 0 0 88px;
   background: #f8f8f8;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -303,7 +303,7 @@ onMounted(() => {
   .category-item {
     position: relative;
     min-height: 48px;
-    padding: 14px 6px;
+    padding: 14px 10px;
     display: flex;
     align-items: center;
     justify-content: center;

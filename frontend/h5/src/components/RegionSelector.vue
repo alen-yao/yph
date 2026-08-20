@@ -2,7 +2,7 @@
   <div class="region-selector">
     <!-- 顶部横向地区栏 -->
     <div class="region-tabs">
-      <div class="tabs-container">
+      <div class="tabs-container" ref="tabsContainerRef">
         <div
           v-for="region in displayRegions"
           :key="region.id"
@@ -19,7 +19,7 @@
           <span class="region-name">{{ region.name }}</span>
         </div>
         <div class="region-item more" @click="showAllRegions">
-          <van-icon name="apps-o" size="24" />
+          <van-icon name="apps-o" />
           <span class="region-name">全部</span>
         </div>
       </div>
@@ -28,7 +28,7 @@
     <!-- 全部地区选择弹窗 -->
     <van-popup
       v-model:show="showPopup"
-      position="bottom"
+      position="top"
       :style="{ height: '70%' }"
       round
     >
@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { showToast } from 'vant'
 import { getEnabledRegions, getAllRegions } from '@/api/product'
 
@@ -82,10 +82,11 @@ const allRegions = ref([])
 const enabledRegions = ref([])
 const currentRegion = ref(props.modelValue)
 const showPopup = ref(false)
+const tabsContainerRef = ref(null)
 
-// 顶部展示的前5个启用地区
+// 顶部展示所有启用地区（可左右滑动）
 const displayRegions = computed(() => {
-  return enabledRegions.value.slice(0, 5)
+  return enabledRegions.value
 })
 
 // 获取地区图标路径
@@ -124,6 +125,35 @@ const handleRegionSelect = (region) => {
   }
   selectRegion(region)
   showPopup.value = false
+  // 滚动到选中的地区
+  scrollToRegion(region)
+}
+
+// 滚动到选中的地区
+const scrollToRegion = async (region) => {
+  await nextTick()
+  if (!tabsContainerRef.value) return
+
+  const index = enabledRegions.value.findIndex(r => r.id === region.id)
+  if (index === -1) return
+
+  const container = tabsContainerRef.value
+  const regionItems = container.querySelectorAll('.region-item:not(.more)')
+
+  if (regionItems[index]) {
+    const item = regionItems[index]
+    const containerWidth = container.offsetWidth
+    const itemLeft = item.offsetLeft
+    const itemWidth = item.offsetWidth
+
+    // 计算滚动位置，使选中的地区居中显示
+    const scrollLeft = itemLeft - (containerWidth / 2) + (itemWidth / 2)
+
+    container.scrollTo({
+      left: scrollLeft,
+      behavior: 'smooth'
+    })
+  }
 }
 
 // 加载地区数据
@@ -175,14 +205,14 @@ defineExpose({
 }
 
 .region-tabs {
-  padding: 7px 10px 6px;
+  padding: 10px 12px 8px;
   background: #fff;
 }
 
 .tabs-container {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 16px;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0 2px 1px;
@@ -195,11 +225,11 @@ defineExpose({
 }
 
 .region-item {
-  flex: 0 0 48px;
+  flex: 0 0 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   color: #666;
   cursor: pointer;
 
@@ -214,24 +244,31 @@ defineExpose({
   }
 
   &.more {
+    flex: 0 0 50px;
+
     .van-icon {
-      width: 44px;
-      height: 44px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 1px solid #e5e5e5;
       border-radius: 50%;
       background: #fafafa;
-      font-size: 22px;
+      font-size: 18px;
       color: #666;
+    }
+
+    .region-name {
+      max-width: 50px;
+      font-size: 11px;
     }
   }
 }
 
 .region-icon {
-  width: 44px;
-  height: 44px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid transparent;
@@ -239,8 +276,8 @@ defineExpose({
 }
 
 .region-name {
-  max-width: 48px;
-  font-size: 10px;
+  max-width: 60px;
+  font-size: 11px;
   line-height: 1.2;
   color: #666;
   white-space: nowrap;
