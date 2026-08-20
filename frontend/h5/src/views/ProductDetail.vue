@@ -67,7 +67,20 @@
     <!-- 商品详情 -->
     <div class="detail-section">
       <div class="section-title">商品详情</div>
-      <div class="detail-content" v-html="product.detail_html"></div>
+      <div class="detail-content">
+        <div v-if="product.detail_html" v-html="product.detail_html"></div>
+        <div v-if="product.detail_images && product.detail_images.length > 0" class="detail-images">
+          <img
+            v-for="(image, index) in product.detail_images"
+            :key="index"
+            :src="getImageUrl(image)"
+            style="width: 100%; display: block; margin-bottom: 10px;"
+          />
+        </div>
+        <div v-if="!product.detail_html && (!product.detail_images || product.detail_images.length === 0)" style="padding: 40px; text-align: center; color: #999;">
+          暂无详情
+        </div>
+      </div>
     </div>
 
     <!-- 底部操作栏 -->
@@ -162,13 +175,7 @@ const loadProductDetail = async () => {
 
 // 返回按钮处理
 const handleBack = () => {
-  // 如果有历史记录，则返回上一页
-  if (window.history.length > 1) {
-    router.back()
-  } else {
-    // 否则返回分类页
-    router.push('/category')
-  }
+  router.back()
 }
 
 const goHome = () => {

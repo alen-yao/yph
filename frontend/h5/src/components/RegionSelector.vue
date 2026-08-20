@@ -68,8 +68,11 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import { showToast } from 'vant'
 import { getEnabledRegions, getAllRegions } from '@/api/product'
+
+const route = useRoute()
 
 const props = defineProps({
   modelValue: {
@@ -173,8 +176,20 @@ const loadRegions = async () => {
     enabledRegions.value = enabledRes || []
     console.log('RegionSelector - 启用的地区:', enabledRegions.value)
 
-    // 如果没有当前选中地区，默认选中第一个启用的地区
+    // 如果没有当前选中地区，尝试从 URL 恢复或选择第一个
     if (!currentRegion.value && enabledRegions.value.length > 0) {
+      // 尝试从 URL 参数中恢复地区
+      const regionCode = route.query.region
+      if (regionCode) {
+        const region = enabledRegions.value.find(r => r.code === regionCode)
+        if (region) {
+          console.log('RegionSelector - 从 URL 恢复地区:', region)
+          selectRegion(region)
+          return
+        }
+      }
+
+      // 如果 URL 没有地区参数或找不到，则选中第一个
       console.log('RegionSelector - 自动选中第一个地区')
       selectRegion(enabledRegions.value[0])
     } else {
