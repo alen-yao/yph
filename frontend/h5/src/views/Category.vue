@@ -206,6 +206,11 @@ const fetchProducts = async () => {
     // 响应拦截器已经返回了 response.data，所以直接使用
     products.value = res?.results || res || []
     console.log('商品数据:', products.value)
+    // 调试：打印第一个商品的图片URL
+    if (products.value.length > 0) {
+      console.log('第一个商品的原始cover_image:', products.value[0].cover_image)
+      console.log('转换后的图片URL:', getImageUrl(products.value[0].cover_image))
+    }
   } catch (error) {
     console.error('获取商品失败:', error)
     showToast('获取商品失败')
