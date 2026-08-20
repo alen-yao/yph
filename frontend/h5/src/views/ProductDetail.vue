@@ -6,7 +6,7 @@
       left-arrow
       fixed
       placeholder
-      @click-left="$router.back()"
+      @click-left="handleBack"
     >
       <template #right>
         <div class="nav-right-actions">
@@ -18,8 +18,8 @@
 
     <!-- 商品图片轮播 -->
     <van-swipe class="product-swiper" :autoplay="3000" indicator-color="#e93323">
-      <van-swipe-item v-for="(image, index) in product.images" :key="index">
-        <van-image :src="image" fit="cover" class="swiper-image" @click="onPreviewImage(index)" />
+      <van-swipe-item v-for="(image, index) in product.main_images" :key="index">
+        <van-image :src="getImageUrl(image)" fit="cover" class="swiper-image" @click="onPreviewImage(index)" />
       </van-swipe-item>
     </van-swipe>
 
@@ -98,44 +98,78 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast, showImagePreview } from 'vant'
+import { getProductDetail } from '@/api/product'
 
 const route = useRoute()
 const router = useRouter()
 
 const cartCount = ref(0)
+const loading = ref(false)
 
 const product = ref({
-  id: 1,
-  name: '李玉双 有机 五常大米 2.5kg',
-  price: 59.5,
-  reviews: true,
-  reviewSummary: [
-    { name: '质量很好', count: 407 },
-    { name: '口感俱佳', count: 316 },
-    { name: '味道很棒', count: 302 },
-    { name: '很划算', count: 120 },
-    { name: '新鲜味美', count: 114 },
-    { name: '营养丰富', count: 69 },
-    { name: '味道鲜美', count: 40 }
-  ],
-  shop: {
-    name: '本来生活VIP官方店',
-    logo: 'https://via.placeholder.com/48x48/52c41a/fff?text=本',
-    badges: ['企业认证', '4年有赞店', '品牌认证']
-  },
-  detail_html: `
-    <div style="padding: 0; line-height: 1.8;">
-      <img src="https://via.placeholder.com/375x500/f5f5f5/333?text=Product+Detail+1" style="width: 100%; display: block;" />
-      <img src="https://via.placeholder.com/375x500/f5f5f5/333?text=Product+Detail+2" style="width: 100%; display: block; margin-top: 10px;" />
-      <img src="https://via.placeholder.com/375x500/f5f5f5/333?text=Product+Detail+3" style="width: 100%; display: block; margin-top: 10px;" />
-    </div>
-  `,
-  images: [
-    'https://via.placeholder.com/375x375/f5f5f5/333?text=Rice+1',
-    'https://via.placeholder.com/375x375/f5f5f5/333?text=Rice+2',
-    'https://via.placeholder.com/375x375/f5f5f5/333?text=Rice+3'
-  ]
+  id: '',
+  name: '',
+  price: 0,
+  market_price: 0,
+  description: '',
+  detail_html: '',
+  main_images: [],
+  detail_images: [],
+  region_name: '',
+  category_name: '',
+  sales_count: 0,
+  stock: 0,
+  reviews: false,
+  reviewSummary: [],
+  shop: null,
+  images: []
 })
+
+// 处理图片URL
+const getImageUrl = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  return `http://localhost:9000/yph-products/${url}`
+}
+
+// 加载商品详情
+const loadProductDetail = async () => {
+  const productId = route.params.id
+  if (!productId) {
+    showToast('商品ID不存在')
+    return
+  }
+
+  loading.value = true
+  try {
+    const res = await getProductDetail(productId)
+    console.log('商品详情数据:', res)
+
+    // 更新商品信息
+    product.value = {
+      ...res,
+      images: res.main_images || []
+    }
+  } catch (error) {
+    console.error('获取商品详情失败:', error)
+    showToast('获取商品详情失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 返回按钮处理
+const handleBack = () => {
+  // 如果有历史记录，则返回上一页
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    // 否则返回分类页
+    router.push('/category')
+  }
+}
 
 const goHome = () => {
   router.push('/home')
@@ -158,8 +192,9 @@ const visitShop = () => {
 }
 
 const onPreviewImage = (index) => {
+  const images = (product.value.main_images || []).map(img => getImageUrl(img))
   showImagePreview({
-    images: product.value.images,
+    images: images,
     startPosition: index
   })
 }
@@ -187,9 +222,7 @@ const buyNow = () => {
 }
 
 onMounted(() => {
-  const productId = route.params.id
-  console.log('加载商品详情:', productId)
-  // TODO: 从 API 加载商品详情
+  loadProductDetail()
 })
 </script>
 
