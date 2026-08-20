@@ -2,25 +2,27 @@
   <div class="region-selector">
     <!-- 顶部横向地区栏 -->
     <div class="region-tabs">
-      <div class="tabs-container" ref="tabsContainerRef">
-        <div
-          v-for="region in displayRegions"
-          :key="region.id"
-          class="region-item"
-          :class="{ active: currentRegion?.id === region.id }"
-          @click="selectRegion(region)"
-        >
-          <img
-            :src="getRegionIcon(region.code)"
-            :alt="region.name"
-            class="region-icon"
-            :style="{ filter: region.status ? 'none' : 'grayscale(100%) opacity(0.5)' }"
-          />
-          <span class="region-name">{{ region.name }}</span>
+      <div class="tabs-wrapper">
+        <div class="tabs-container" ref="tabsContainerRef">
+          <div
+            v-for="region in displayRegions"
+            :key="region.id"
+            class="region-item"
+            :class="{ active: currentRegion?.id === region.id }"
+            @click="selectRegion(region)"
+          >
+            <img
+              :src="getRegionIcon(region.code)"
+              :alt="region.name"
+              class="region-icon"
+              :style="{ filter: region.status ? 'none' : 'grayscale(100%) opacity(0.5)' }"
+            />
+            <span class="region-name">{{ region.name }}</span>
+          </div>
         </div>
-        <div class="region-item more" @click="showAllRegions">
-          <van-icon name="apps-o" />
-          <span class="region-name">全部</span>
+        <div class="more-button" @click="showAllRegions">
+          <van-icon name="apps-o" size="16" />
+          <span class="more-text">全部</span>
         </div>
       </div>
     </div>
@@ -209,7 +211,14 @@ defineExpose({
   background: #fff;
 }
 
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .tabs-container {
+  flex: 1;
   display: flex;
   align-items: flex-start;
   gap: 16px;
@@ -242,27 +251,31 @@ defineExpose({
       font-weight: 600;
     }
   }
+}
 
-  &.more {
-    flex: 0 0 50px;
+.more-button {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+  cursor: pointer;
+  color: #666;
 
-    .van-icon {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #e5e5e5;
-      border-radius: 50%;
-      background: #fafafa;
-      font-size: 18px;
-      color: #666;
-    }
+  .van-icon {
+    color: #666;
+  }
 
-    .region-name {
-      max-width: 50px;
-      font-size: 11px;
-    }
+  .more-text {
+    font-size: 11px;
+    line-height: 1.2;
+    color: #666;
+    white-space: nowrap;
+  }
+
+  &:active {
+    opacity: 0.7;
   }
 }
 
