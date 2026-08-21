@@ -490,6 +490,13 @@ onMounted(() => {
 
 // 底部操作栏
 .goods-action {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: $bg-color-white;
+
   :deep(.van-goods-action-icon) {
     .van-icon {
       font-size: 20px;
