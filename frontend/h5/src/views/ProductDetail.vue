@@ -26,7 +26,7 @@
     <!-- 价格和标题信息 -->
     <div class="product-header">
       <div class="price-section">
-        <div class="price">¥{{ product.price }}</div>
+        <div class="price">{{ product.price }}</div>
         <div class="coupon-link" @click="onCoupon">查看优惠 ></div>
       </div>
       <div class="product-title">{{ product.name }}</div>
