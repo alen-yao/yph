@@ -74,7 +74,6 @@
             v-for="(image, index) in product.detail_images"
             :key="index"
             :src="getImageUrl(image)"
-            style="width: 100%; display: block; margin-bottom: 10px;"
           />
         </div>
         <div v-if="!product.detail_html && (!product.detail_images || product.detail_images.length === 0)" style="padding: 40px; text-align: center; color: #999;">
@@ -459,8 +458,6 @@ onMounted(() => {
   }
 
   .detail-content {
-    padding: 0 $spacing-lg; // 添加左右间距
-
     :deep(img) {
       display: block;
       width: 100%;
@@ -470,15 +467,19 @@ onMounted(() => {
     :deep(h3) {
       font-size: $font-size-lg;
       margin: 15px 0;
+      padding: 0 $spacing-lg;
     }
 
     :deep(p) {
       margin: 8px 0;
       line-height: 1.8;
+      padding: 0 $spacing-lg;
     }
   }
 
   .detail-images {
+    padding: 0 16px; // 图片左右间距
+
     img {
       width: 100%;
       display: block;
