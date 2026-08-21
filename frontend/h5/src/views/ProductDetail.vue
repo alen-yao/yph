@@ -448,6 +448,7 @@ onMounted(() => {
 .detail-section {
   background: $bg-color-white;
   padding: $spacing-lg 0;
+  margin-bottom: 60px; // 底部留出空间，避免被固定底栏遮挡
 
   .section-title {
     padding: 0 $spacing-lg;
@@ -458,6 +459,8 @@ onMounted(() => {
   }
 
   .detail-content {
+    padding: 0 $spacing-lg; // 添加左右间距
+
     :deep(img) {
       display: block;
       width: 100%;
@@ -472,6 +475,14 @@ onMounted(() => {
     :deep(p) {
       margin: 8px 0;
       line-height: 1.8;
+    }
+  }
+
+  .detail-images {
+    img {
+      width: 100%;
+      display: block;
+      margin-bottom: 10px;
     }
   }
 }
